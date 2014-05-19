@@ -75,7 +75,7 @@ def mu(h=0.0):
     rate, then Sutherland's law.
     '''
 
-    return fluid.mu_T( T(h) )
+    return fluid.mu( mu_0, T(h) )
 
 
 def nu(h=0.0):

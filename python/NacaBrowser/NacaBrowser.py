@@ -2,18 +2,25 @@
 
 import os
 import sys
-sys.path.append('../lib')
+import inspect
+
 from PySide import QtUiTools
 from PySide import QtGui
 from PySide import QtCore
-import NbMainWindow
 
+import numpy as np
 import matplotlib.transforms as trx
 import matplotlib.patches as patches
 import matplotlib.lines as lines
 
-import numpy as np
+# Include library directory on Python module search path if it's
+# included with this script:
+lib_dir = os.path.realpath(os.path.join(os.path.split(
+            inspect.getfile(inspect.currentframe()))[0], 'lib'))
+if os.path.isdir(lib_dir) and lib_dir not in sys.path:
+    sys.path.insert(0, lib_dir)
 
+import NbMainWindow
 import aero.naca as naca
 
 
