@@ -45,9 +45,6 @@ def this_dir():
                 inspect.getfile(inspect.currentframe()))[0]))
 
 
-
-
-
 #: The following are the 87 canonical NACA 4-digit profiles:
 naca4canonical = [
     '0006', '0009', '0012', '0015', '0018', '0021', '0025',
@@ -121,7 +118,7 @@ def nacaImage(profile):
     n = 6
     if len(profile)!=4 or not isCanonical(profile):
         return None
-#    data = np.array(img.imread(this_dir()+'/naca4foils.png')[:,:,0], dtype=np.int8)
+
     camAmt = int(profile[0])
     camLoc = int(profile[1])
     thick  = int(profile[2:4])
@@ -135,12 +132,12 @@ def nacaImage(profile):
     offset = thick/3-2
     row    = 6*group+offset
     y1,y2  = nacaImage.rows[row]
-    print((camAmt,group), (thick, offset), row, (y1,y2))
+#    print((camAmt,group), (thick, offset), row, (y1,y2))
 
     data = nacaImage.data
     if data is None:
         data = img.imread(this_dir()+'/naca4foils.png')
-        print(type(data), data.shape, data.dtype)
+#        print(type(data), data.shape, data.dtype)
         nacaImage.data = data
 
 #    sub=data[t+m*h:t+(m+1)*h, l+n*w:l+(n+1)*w,:]
