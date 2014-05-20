@@ -12,6 +12,7 @@ import numpy as np
 import matplotlib.transforms as trx
 import matplotlib.patches as patches
 import matplotlib.lines as lines
+import matplotlib.offsetbox as boxes
 
 # Include library directory on Python module search path if it's
 # included with this script:
@@ -67,21 +68,33 @@ class Airfoil(object):
 
     def draw(self, axes):
         profile = self.getNacaString()
-        x,y,cx,cy = naca.naca(profile, Airfoil.N_POINTS)
-        xy = np.vstack((1.0-x,y)).transpose()
+        x,y,cx,cy = naca.naca(profile, Airfoil.N_POINTS, False, True)
+        xy = np.vstack((x,y)).transpose()
 
         while self._artists:
             a = self._artists.pop()
             if a in axes.get_children():
                 a.remove()
 
-        color = "green" if naca.isCanonical(profile) else "red"
+        color = "green" if naca.isCanonical(profile)    \
+            else "orange" if naca.isReasonable(profile) \
+            else "red"
         a = patches.Polygon(xy, color=color, alpha=0.50, zorder=4)
         axes.add_artist(a)
         self._artists.append(a)
-        a = lines.Line2D(1.0-cx, cy, color=color, zorder=5)
+        a = lines.Line2D(cx, cy, color=color, zorder=5)
         axes.add_artist(a)
         self._artists.append(a)
+        if naca.isCanonical(profile):
+            data  = naca.nacaImage(profile)
+            imbox = boxes.OffsetImage(data, zorder=5)
+            bbox  = axes.bbox.extents
+            x = bbox[2]-data.shape[1]
+            y = bbox[1]
+            imbox.set_offset((x,y))
+            axes.add_artist(imbox)
+            self._artists.append(imbox)
+
 
     def setFirstDigit(self, value):
         '''

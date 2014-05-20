@@ -21,19 +21,32 @@ References:
     Advisory Committee for Aeronautics, Washington D.C.; November,
     1935.
 
-    [2] Ladson, Charles L., and Brooks, Cuyler W, Jr.: "Development of
+    [3] Ladson, Charles L., and Brooks, Cuyler W, Jr.: "Development of
     a Computer Program to Obtain Ordinates for NACA 4-Digit, 4-Digit
     Modified, 5-Digit, and 16-Series Airfoils"; NASA Technical
     Memorandum X-3284; NASA, Washington, DC; 1975.
 
 
-Copyright (c) 2014, Emmet Caulfield
+Copyright (c) 2014, Emmet Caulfield. All rights reserved.
 
 """
+import os
+import sys
+import inspect
 
 import math
 import numpy as np
 import scipy.interpolate as si
+import matplotlib.image as img
+
+# Directory this file lives in:
+def this_dir():
+    return os.path.realpath(os.path.join(os.path.split(
+                inspect.getfile(inspect.currentframe()))[0]))
+
+
+
+
 
 #: The following are the 87 canonical NACA 4-digit profiles:
 naca4canonical = [
@@ -79,6 +92,82 @@ def isCanonical(profile):
             return True
     return False
 
+def isReasonable(profile):
+    if len(profile)!=4:
+        return False
+
+    camAmt = int(profile[0])
+    camLoc = int(profile[1])
+    thickness = int(profile[2:4])
+
+    if bool(camAmt) != bool(camLoc):
+        return False
+    if camAmt > 6:
+        return False
+    if camLoc > 7:
+        return False
+    if thickness < 6 or thickness > 21:
+        return False
+
+    return True
+
+
+def nacaImage(profile):
+    h = 100
+    w = 315
+    l = 30
+    t = 0
+    m = 0
+    n = 6
+    if len(profile)!=4 or not isCanonical(profile):
+        return None
+#    data = np.array(img.imread(this_dir()+'/naca4foils.png')[:,:,0], dtype=np.int8)
+    camAmt = int(profile[0])
+    camLoc = int(profile[1])
+    thick  = int(profile[2:4])
+    if camLoc == 0:
+        n = 0
+    else:
+        n = camLoc - 1
+
+    # In the original paper, the foils are arranged in columns and groups.
+    group  = camAmt/2-1
+    offset = thick/3-2
+    row    = 6*group+offset
+    y1,y2  = nacaImage.rows[row]
+    print((camAmt,group), (thick, offset), row, (y1,y2))
+
+    data = nacaImage.data
+    if data is None:
+        data = img.imread(this_dir()+'/naca4foils.png')
+        print(type(data), data.shape, data.dtype)
+        nacaImage.data = data
+
+#    sub=data[t+m*h:t+(m+1)*h, l+n*w:l+(n+1)*w,:]
+    sub=data[y1:y2, l+n*w:l+(n+1)*w,:]
+    return sub
+
+nacaImage.data=None
+nacaImage.rows=[
+    (  20,   79),
+    (  88,  151), 
+    ( 158,  224),
+    ( 224,  298), # X
+    ( 291,  377), # X
+    ( 380,  470),
+    ( 509,  570),
+    ( 577,  641),
+    ( 645,  716), # X
+    ( 711,  788), # XX
+    ( 779,  863), # X
+    ( 870,  957),
+    ( 999, 1060),
+    (1067, 1132),
+    (1135, 1203),
+    (1203, 1274), # X
+    (1269, 1350), # X
+    (1361, 1446)
+]
 
 def naca(profile, n, finite_TE=False, half_cosine_spacing=False):
     '''
@@ -98,18 +187,19 @@ def naca(profile, n, finite_TE=False, half_cosine_spacing=False):
     A NACA 4-digit profiles [1], "MPTT" consist of three parts:
     
         * One digit, M, the maximum camber amount in percent
-        * One digit, P, the x-coordinate of the point of maximum camber in TENS of percent
+        * One digit, P, the x-coordinate of the point of maximum camber
+            in TENS of percent
         * Two digits: TT, the maximum thickness of the airfoil in percent
 
     No NACA-4 profile can meaningfully have a zero for M or P if it
     does not have a zero for both.
 
-    The 
 
     A NACA 5-digit profile [2], "LPSTT", also consists of four parts:
 
         * One digit, L: the design lift coefficient is 3L/20 (or 0.15L)
-        * One digit, P, the x-coordinate of the point of maximum camber in FIVES of percent
+        * One digit, P, the x-coordinate of the point of maximum camber in
+            FIVES of percent
         * One digit, S, indicating simple (0) or reflex (1) camber 
         * Two digits: TT, the maximum thickness of the airfoil in percent
 

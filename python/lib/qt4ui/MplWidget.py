@@ -23,11 +23,19 @@ class MplWidget(FigureCanvas):
 
 
     def __getattr__(self, name):
+        attr=None
         if name in dir(self._axes):
             attr = getattr(self._axes, name)
             if callable(attr):
                 return attr
-            raise AttributeError(attr)
+
+        if name in dir(self._fig):
+            attr = getattr(self._fig, name)
+            if callable(attr):
+                return attr
+
+        raise AttributeError(attr)
+
 
     def axis(self, xmin, xmax, ymin, ymax):
         self._axes.set_xlim((xmin, xmax))
