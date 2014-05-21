@@ -9,6 +9,8 @@ Overview
 
 A random collection of Python and Java software. Hightlights include
 
+  * [WindShearProfile](java/WindShearProfile) — a Java 8 applet demonstrating
+    log-law wind shear in the Earth's boundary layer.
   * [BladeTwist](python/BladeTwist) — a Python “applet” demonstrating
     twist of wind turbine blades.
   * [NacaBrowser](python/NacaBrowser) — a Python “applet” that
