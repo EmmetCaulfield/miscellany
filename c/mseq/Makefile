@@ -1,15 +1,17 @@
+# -*- makefile-gmake -*-
 SRCS:=main.c mseq.c
 HDRS:=mseq.h
 
+CC=gcc
+CFLAGS=-std=c11 -Wall -Wextra -pedantic -O3
+CPPFLAGS=-I. -DNDEBUG
+LDFLAGS=
+LDLIBS=
+
+# It should be pretty well automatic from here...
 OBJS:= $(SRCS:.c=.o)
 DEPS:= $(SRCS:.c=.d)
 BIN := $(basename $(firstword $(SRCS)))
-
-CC=gcc
-CFLAGS=-std=c11 -Wall -Wextra -pedantic -O3
-CPPFLAGS=-I.
-LDFLAGS=
-LDLIBS=
 
 $(BIN): $(OBJS)
 
@@ -22,31 +24,33 @@ endif
 debug: $(BIN)
 
 
-# Include automagic dependencies for everything except "clean" targets:
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
--include $(DEPS)
-endif
-
 # Generate dependencies automagically:
 deps: $(DEPS)
-%.d: %.cpp
-	$(CC) -MM $(subst -MMD,,$(CPPFLAGS)) $(CPPFLAGS) -o $@ $^
+%.d: %.c
+	$(CC) -MM $(subst -MMD,,$(CPPFLAGS)) $(CFLAGS) -o $@ $^
 
 # Build documents with Doxygen
+NODEPS+=doc
 doc: $(SRCS) $(HDRS)
 	doxygen
 
 # Run valgrind to check for memory leaks
+NODEPS+=valgrind
 valgrind:
 	valgrind ./$(BIN)
 
+
 # Remove compiler-generated, editor backup, and core dump files
+NODEPS+=clean
 clean:
 	rm -f *.o *.d *~ core core.* $(BIN)
 
-foo:
-	echo 
+# Mark targets that aren't real files:
+.PHONY: clean valgrind debug deps
 
 
-.PHONY: clean valgrind debug
-
+# Include automagic dependencies for all targets except phonies and
+# ones we explictly add:
+ifeq (,$(filter $(NODEPS),$(MAKECMDGOALS)))
+-include $(DEPS)
+endif
