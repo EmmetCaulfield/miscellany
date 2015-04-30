@@ -19,3 +19,4 @@ A random collection of Python and Java software. Hightlights include
     [vtku](python/lib/vtku/), a python utility module that eases some
     Python/VTK annoyances.
 
+Bitbucket handles links badly; for these links to work, start [here](master/).
