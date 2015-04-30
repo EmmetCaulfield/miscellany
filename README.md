@@ -5,9 +5,9 @@ A semi-organized collection of miscellaneous software.
 
 
 Overview
-========
+--------
 
-A random collection of Python and Java software. Hightlights include
+A random collection of *Python*, *Java*, and *C* software. Hightlights include:
 
   * [WindShearProfile](java/WindShearProfile) — a Java 8 applet demonstrating
     log-law wind shear in the Earth's boundary layer.
@@ -18,5 +18,8 @@ A random collection of Python and Java software. Hightlights include
   * [Miscellaneous simple Python libraries](python/lib/) including
     [vtku](python/lib/vtku/), a python utility module that eases some
     Python/VTK annoyances.
+  * [mseq](c/mseq/), a rudimentary m-sequence generator in *C* (a work
+    in-progress).
 
-Bitbucket handles links badly; for these links to work, start [here](src/master/).
+[Bitbucket](https://bitbucket.org/) handles links badly; for these
+links to work, start [here](src/master/).
