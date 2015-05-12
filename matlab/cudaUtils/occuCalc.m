@@ -169,8 +169,9 @@ limitBlocksDueToWarps = min(limitBlocksPerMultiprocessor, floor(limitWarpsPerMul
 limitBlocksDueToRegs = limitBlocksPerMultiprocessor;
 mask = MyRegCount > 0;
 limitBlocksDueToRegs(mask) = floor(MyRegsPerSm_(mask)./MyRegsPerBlock(mask));
-mask = MyRegCount > limitRegsPerThread;
-limitBlocksDueToRegs(mask) = zeros(size(mask))(mask);
+mask   = MyRegCount > limitRegsPerThread;
+mzeros = zeros(size(mask));
+limitBlocksDueToRegs(mask) = mzeros(mask);
 
 % D40, B46
 limitBlocksDueToSMem = limitBlocksPerMultiprocessor;
