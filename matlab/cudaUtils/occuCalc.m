@@ -45,7 +45,7 @@ function [smOccupancy_ activeTWB_ limitBlocks_ limitFlags_]=occuCalc(SMVersion, 
 %validateattributes(MyThreadCount,  {'uint16'}, {'vector'}); 
 %validateattributes(MyRegCount,     {'uint16'}, {'vector'});
 %validateattributes(MySharedMemory, {'uint16'}, {'vector'});
-
+    
 % But we only allow one of these to be a vector
 lengths_=[length(MyThreadCount) length(MyRegCount) length(MySharedMemory)];
 if sum(lengths_~=1)>1,
@@ -109,6 +109,8 @@ switch(SMVersion)
       gpuSpec_ = gpuData_(:,7);
     case 35
       gpuSpec_ = gpuData_(:,8);
+    otherwise
+      error(sprintf('No such SM version (%d)', SMVersion));
 end
 
 
@@ -167,7 +169,7 @@ limitBlocksDueToWarps = min(limitBlocksPerMultiprocessor, floor(limitWarpsPerMul
 
 % D39, B45
 limitBlocksDueToRegs = limitBlocksPerMultiprocessor;
-mask = MyRegCount > 0;
+mask = MyRegCount.*justOnes_ > 0;
 limitBlocksDueToRegs(mask) = floor(MyRegsPerSm_(mask)./MyRegsPerBlock(mask));
 mask   = MyRegCount > limitRegsPerThread;
 mzeros = zeros(size(mask));
@@ -189,6 +191,7 @@ limitFlags_  = bsxfun(@eq, limitBlocks_, min(limitBlocks_));
 activeBlocks_  = min(limitBlocks_);                     % B19
 activeWarps_   = activeBlocks_ .* MyWarpsPerBlock;      % B18
 ActiveThreads  = activeWarps_  .* limitThreadsPerWarp;  % B17
+
 % B20:
 smOccupancy_   = round(100*activeWarps_./limitWarpsPerMultiprocessor);
 % B17:B19
