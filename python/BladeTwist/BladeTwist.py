@@ -2,6 +2,7 @@
 
 import os
 import sys
+import inspect
 
 from PySide import QtUiTools
 from PySide import QtGui
