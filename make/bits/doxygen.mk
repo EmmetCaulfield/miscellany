@@ -5,5 +5,5 @@ NODEPS+=doc
 doc: $(SRCS) $(HDRS)
 	doxygen
 
-RT_FILES:=$(sort doc, $(RT_FILES))
+RT_FILES:=$(sort doc $(RT_FILES))
 #======================================================================
