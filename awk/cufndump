@@ -1,0 +1,160 @@
+#!/usr/bin/env bash
+
+cidre='[A-Za-z_][A-Za-z0-9_]\+'
+stlre='<([0-9]\+)(, [0-9]\+)*>'
+
+cuobjdump -sass "$1" | c++filt | sed -n "/^[[:space:]]\+Function : /,/^[[:space:]]\+\\.\{10,\}[[:space:]]*$/p" | awk '
+function min(x,y) { return x<y ? x : y }
+function max(x,y) { return x>y ? x : y }
+function hex2int(s) {
+    gsub(/[^0-9a-f]/, "", s)
+    return strtonum( "0x" s )
+}
+function set(s,n,c) { 
+    return( substr(s,1,n-1) c substr(s,n+length(c)) ) 
+}
+
+function graph(lineArray, firstLine, numLines) {
+    maxId=1
+
+    for(nr=firstLine; nr<=firstLine+numLines; nr++) {
+        split(lineArray[nr], field, " ")
+        if( field[2]~/^BRA/ ) {
+            srcLine[maxId]=nr
+            dstAddr[maxId]=hex2int(field[3])
+            maxId++
+        } else if(field[2]~/^@/ && field[3]~/^BRA/) {
+            srcLine[maxId]=nr
+            dstAddr[maxId]=hex2int(field[4])
+            maxId++
+        }
+        lineAddr=hex2int(field[1])
+        lineToAddr[nr]=lineAddr
+        addrToLine[lineAddr]=nr
+    }
+
+    # Compute arc lengths and directions in terms of line-numbers:
+    for(id=1; id<maxId; id++) {
+        dstLine[id] = addrToLine[dstAddr[id]]
+        arcUpr[id]  = min(srcLine[id], dstLine[id])
+        arcLwr[id]  = max(srcLine[id], dstLine[id])
+        arcLen[id]  = arcLwr[id]-arcUpr[id]
+        arcDir[id]  = srcLine[id] < dstLine[id]
+        arcIdByUpr[arcUpr[id]] = id "," arcIdByUpr[arcUpr[id]]
+        arcIdByLwr[arcLwr[id]] = id "," arcIdByLwr[arcLwr[id]]
+    }
+
+    # Sort by jump length:
+    asorti(arcLen, idByLenRank, "@val_num_asc")
+
+    # Starting with the shortest jumps, try to share lanes:
+    laneCount=1
+    for(j=1; j<maxId; j++) {
+        id=idByLenRank[j]
+        ul=arcUpr[id]
+        ll=arcLwr[id]
+
+        for(ln=1; ln<=laneCount; ln++) {
+            split(idByLaneNum[ln], ids, ",")
+            conflict=0
+            for(i=1; i<=length(ids)-1; i++) {
+                cul=arcUpr[ids[i]]
+                cll=arcLwr[ids[i]]
+                if(!(ul>cll || ll<cul)) {
+                    conflict=1
+                    break
+                }
+            }
+            if(!conflict) {
+                laneNumById[id] = ln
+                idByLaneNum[ln] = id "," idByLaneNum[ln]
+                break
+            }
+        }
+        if(ln>laneCount) {
+            laneNumById[id] = ln
+            idByLaneNum[ln] = id ","
+            laneCount++
+        }
+    }
+
+    # Print out the asm with jump arcs:
+    laneStr=sprintf("%*s", 2*laneCount+2, "") 
+    for(nr=1; nr<NR; nr++) {
+        if( nr in arcIdByUpr || nr in arcIdByLwr ) {
+            if( nr in arcIdByUpr ) {
+                idList=arcIdByUpr[nr]
+                corner = ","
+            } else {
+                idList=arcIdByLwr[nr]
+                corner = "`"
+            }
+
+            maxLane   = 0
+            minLane   = laneCount+10
+            direction = 0
+
+            split(idList, idArray, ",")
+            for(i=1; i<length(idArray); i++) {
+                id = idArray[i];
+                laneNum    = laneCount-laneNumById[id]+1;
+                minLane    = min(laneNum, minLane)
+                direction += srcLine[id] == nr
+                selfLoop   = selfLoop || arcLen[id]==0
+            }
+
+            dashes=sprintf("%*s", 2*(laneCount-minLane), "")
+            gsub(/ /, "-", dashes)
+            laneStr=set(laneStr, 2*minLane+1, dashes)
+
+            if(selfLoop) {
+                arrow = "-o"
+                corner= "o"
+            } else {
+                arrow = direction ? "-<" : "->"
+            }
+            laneStr=set(laneStr, 2*laneCount+1, arrow)
+
+            for(i=1; i<length(idArray); i++) {
+                id = idArray[i];
+                laneNum = laneCount-laneNumById[id]+1;
+                laneStr = set(laneStr, 2*laneNum, corner)
+            }
+
+            print laneStr line[nr]
+
+            laneStr=sprintf("%*s", 2*laneCount+2, "") 
+            for(i=1; i<=maxId; i++) {
+                laneNum=laneCount-laneNumById[i]+1
+                if( arcUpr[i]<=nr && nr<arcLwr[i] ) {
+                    laneStr=set(laneStr, 2*laneNum, "|")
+                }
+            }
+        } else {
+            print laneStr line[nr]
+        }
+    }
+}
+
+
+BEGIN {
+    IGNORECASE=1
+}
+NR>3 && NF>4 {
+    addr=$1
+    gsub(/[^0-9a-f]/, "", addr)
+    addr=strtonum( "0x" addr )
+    stride=addr-last
+    last=addr
+}
+NF == 3 && $2~/0x[0-9a-f]+/ {
+    addr=last+stride
+    $0 = substr($0, 1, 8) sprintf("/*%04x*/", addr) substr($0, 17)
+}
+{
+    line[NR]=$0
+}
+END {
+    graph(line, 1, NR)
+}
+'
