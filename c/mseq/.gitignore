@@ -1,1 +1,12 @@
+_last.mk
+_phonies.mk
+doc
+gmon.out
 main
+smake.*
+*.gcda
+*.gcno
+*.gcov
+*.h.gch
+*.vg
+*.[dios]
