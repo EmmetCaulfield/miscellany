@@ -162,6 +162,7 @@ include(bits/ppc.mk)
 include(bits/asm.mk)
 include(bits/doxygen.mk)
 include(bits/valgrind.mk)
+include(bits/ignores.mk)
 
 
 # Remove runtime-generated files
