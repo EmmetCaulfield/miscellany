@@ -27,8 +27,8 @@ DBUG_FLAGS:=$(DBUG_OPTS)
 endif
 
 ifeq ($(USE_GLOBS),yes)
-CT_FILES:=$(sort *.s, $(CT_FILES))
+CT_FILES:=$(sort *.s $(CT_FILES))
 else
-CT_FILES:=$(sort $(STMS:=.s), $(CT_FILES))
+CT_FILES:=$(sort $(STMS:=.s) $(CT_FILES))
 endif
 #======================================================================

@@ -105,8 +105,6 @@ DBUG_OPTS:=-ggdb3
 #======================================================================
 
 
-
-
 # Binaries we're going to build:
 BINS:=$(basename $(MAIN))
 
@@ -151,6 +149,8 @@ build: $(build_deps)
 
 # Include bits here:
 
+
+
 #===[ bits/pch.mk ]====================================================
 # pch: precompiled header support
 #----------------------------------------------------------------------
@@ -159,9 +159,9 @@ build: $(build_deps)
 pch: $(HDRS:=.gch)
 
 ifeq ($(USE_GLOBS),yes)
-CT_FILES:=$(sort *.h.gch, $(CT_FILES))
+CT_FILES:=$(sort *.h.gch $(CT_FILES))
 else
-CT_FILES:=$(sort $(HDRS:=.gch), $(CT_FILES))
+CT_FILES:=$(sort $(HDRS:=.gch) $(CT_FILES))
 endif
 #======================================================================
 
@@ -207,7 +207,7 @@ LDFLAGS+=-pg
 endif
 gprof0: build
 
-RT_FILES:=$(sort gmon.out, $(RT_FILES))
+RT_FILES:=$(sort gmon.out $(RT_FILES))
 #======================================================================
 
 #===[ bits/gcov.mk ]===================================================
@@ -241,9 +241,9 @@ endif
 gcov0: build
 
 ifeq ($(USE_GLOBS),yes)
-RT_FILES:=$(sort *.gcda *.gcno *.gcov, $(RT_FILES))
+RT_FILES:=$(sort *.gcda *.gcno *.gcov $(RT_FILES))
 else
-RT_FILES:=$(sort $(STMS:=.gcda) $(STMS:=.gcno) $(STMS:=.gcov), $(RT_FILES))
+RT_FILES:=$(sort $(STMS:=.gcda) $(STMS:=.gcno) $(STMS:=.gcov) $(RT_FILES))
 endif
 #======================================================================
 
@@ -259,9 +259,9 @@ endif
 deps: $(DEPS)
 
 ifeq ($(USE_GLOBS),yes)
-MC_FILES:=$(sort *.d, $(MC_FILES))
+MC_FILES:=$(sort *.d $(MC_FILES))
 else
-MC_FILES:=$(sort $(DEPS), $(MC_FILES))
+MC_FILES:=$(sort $(DEPS) $(MC_FILES))
 endif
 #======================================================================
 
@@ -274,9 +274,9 @@ endif
 ppc: $(STMS:=.i)
 
 ifeq ($(USE_GLOBS),yes)
-CT_FILES:=$(sort *.i, $(CT_FILES))
+CT_FILES:=$(sort *.i $(CT_FILES))
 else
-CT_FILES:=$(sort $(STMS:=.i), $(CT_FILES))
+CT_FILES:=$(sort $(STMS:=.i) $(CT_FILES))
 endif
 #======================================================================
 
@@ -309,9 +309,9 @@ DBUG_FLAGS:=$(DBUG_OPTS)
 endif
 
 ifeq ($(USE_GLOBS),yes)
-CT_FILES:=$(sort *.s, $(CT_FILES))
+CT_FILES:=$(sort *.s $(CT_FILES))
 else
-CT_FILES:=$(sort $(STMS:=.s), $(CT_FILES))
+CT_FILES:=$(sort $(STMS:=.s) $(CT_FILES))
 endif
 #======================================================================
 
@@ -335,9 +335,9 @@ valgrind: $(BINS:=.vg)
 	valgrind --log="$@" ./$<
 
 ifeq ($(USE_GLOBS),yes)
-RT_FILES:=$(sort *.vg, $(RT_FILES))
+RT_FILES:=$(sort *.vg $(RT_FILES))
 else
-RT_FILES:=$(sort $(BINS:=.vg), $(RT_FILES))
+RT_FILES:=$(sort $(BINS:=.vg) $(RT_FILES))
 endif
 #======================================================================
 

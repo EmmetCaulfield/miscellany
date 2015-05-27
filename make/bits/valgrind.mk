@@ -8,9 +8,9 @@ valgrind: $(BINS:=.vg)
 	valgrind --log="$@" ./$<
 
 ifeq ($(USE_GLOBS),yes)
-RT_FILES:=$(sort *.vg, $(RT_FILES))
+RT_FILES:=$(sort *.vg $(RT_FILES))
 else
-RT_FILES:=$(sort $(BINS:=.vg), $(RT_FILES))
+RT_FILES:=$(sort $(BINS:=.vg) $(RT_FILES))
 endif
 #======================================================================
 

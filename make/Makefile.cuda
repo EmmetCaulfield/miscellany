@@ -104,6 +104,51 @@ DBUG_FLAGS:=
 DBUG_OPTS:=-ggdb3
 #======================================================================
 
+
+# Binaries we're going to build:
+BINS:=$(basename $(MAIN))
+
+# This makefile:
+THIS:=$(lastword $(MAKEFILE_LIST))
+
+# Remember to delete the binaries:
+CT_FILES:=$(BINS)
+
+# Stems of ALL source files:
+STMS:=$(BINS) $(basename $(SRCS))
+
+# Let the builtin implicit rule build object-code files:
+OBJS:=$(addsuffix .o,$(basename $(SRCS)))
+ifeq ($(USE_GLOBS),yes)
+CT_FILES+=*.o
+else
+CT_FILES+=$(STMS:=.o)
+endif
+
+# Dependency files:
+DEPS:=$(STMS:=.d)
+
+# Default rule: build the binaries!
+default: build
+
+-include _last.mk
+ifeq ($(LAST),$(MAKECMDGOALS))
+  build_deps:=$(BINS) _last.mk
+else
+  build_deps:=compile-time-clean $(BINS) _last.mk
+endif
+build: $(build_deps)
+
+
+# Implicit rule to build binaries, which assumes that binaries depend
+# on all the other object-code files, i.e. the ones in $(OBJS), which
+# come from sources without a main().
+%: %.o $(OBJS)
+	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+
+# Include bits here:
+
 #===[ bits/CUDA.mk ]===================================================
 # CUDA/nvcc support
 #----------------------------------------------------------------------
@@ -152,15 +197,8 @@ endif
 # verbose: nvcc verbose output:
 ifneq (,$(filter verbose,$(MAKECMDGOALS)))
 NV_CXXFLAGS:=-v $(NV_CXXFLAGS)
-NV_PIPECMD=2>&1 |tee $*-make.out
 endif
-verbose: default
-
-ifeq ($(USE_GLOBS),yes)
-RT_FILES:=$(sort *.gcda *.gcno *.gcov, $(RT_FILES))
-else
-RT_FILES:=$(sort $(STMS:=.gcda) $(STMS:=.gcno) $(STMS:=.gcov), $(RT_FILES))
-endif
+verbose: build
 
 
 # regcount: get kernel register count from nvcc
@@ -168,7 +206,7 @@ ifneq (,$(filter regcount,$(MAKECMDGOALS)))
 NV_ASFLAGS:=-Xptxas -v
 NV_PIPECMD:=2>&1|awk -v RS='ptxas info    : Compiling entry function ' -F 'ptxas info    : ' '{print $$1 $$3}' | c++filt
 endif
-regcount: default
+regcount: build
 
 # Generate dependencies for .cu files:
 %.d: %.cu
@@ -180,57 +218,12 @@ regcount: default
 	$(NV_CXX) --cuda $(CPPFLAGS) $(NV_CXXFLAGS) -o $@ $^
 
 ifeq ($(USE_GLOBS),yes)
-CT_FILES:=$(sort *.cpp.li, $(RT_FILES))
+CT_FILES:=$(sort *.cpp.li $(CT_FILES))
 else
-CT_FILES:=$(sort $(CT_FILES), $(addsuffix .cpp.li, $(basename $(filter %.cu, $(MAIN) $(SRCS)))))
+CT_FILES:=$(sort $(CT_FILES) $(addsuffix .cpp.li, $(basename $(filter %.cu, $(MAIN) $(SRCS)))))
 endif
 #======================================================================
 
-
-
-# Binaries we're going to build:
-BINS:=$(basename $(MAIN))
-
-# This makefile:
-THIS:=$(lastword $(MAKEFILE_LIST))
-
-# Remember to delete the binaries:
-CT_FILES:=$(BINS)
-
-# Stems of ALL source files:
-STMS:=$(BINS) $(basename $(SRCS))
-
-# Let the builtin implicit rule build object-code files:
-OBJS:=$(addsuffix .o,$(basename $(SRCS)))
-ifeq ($(USE_GLOBS),yes)
-CT_FILES+=*.o
-else
-CT_FILES+=$(STMS:=.o)
-endif
-
-# Dependency files:
-DEPS:=$(STMS:=.d)
-
-# Default rule: build the binaries!
-default: build
-
--include _last.mk
-ifeq ($(LAST),$(MAKECMDGOALS))
-  build_deps:=$(BINS) _last.mk
-else
-  build_deps:=compile-time-clean $(BINS) _last.mk
-endif
-build: $(build_deps)
-
-
-# Implicit rule to build binaries, which assumes that binaries depend
-# on all the other object-code files, i.e. the ones in $(OBJS), which
-# come from sources without a main().
-%: %.o $(OBJS)
-	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-
-
-# Include bits here:
 
 #===[ bits/pch.mk ]====================================================
 # pch: precompiled header support
@@ -240,9 +233,9 @@ build: $(build_deps)
 pch: $(HDRS:=.gch)
 
 ifeq ($(USE_GLOBS),yes)
-CT_FILES:=$(sort *.h.gch, $(CT_FILES))
+CT_FILES:=$(sort *.h.gch $(CT_FILES))
 else
-CT_FILES:=$(sort $(HDRS:=.gch), $(CT_FILES))
+CT_FILES:=$(sort $(HDRS:=.gch) $(CT_FILES))
 endif
 #======================================================================
 
@@ -288,7 +281,7 @@ LDFLAGS+=-pg
 endif
 gprof0: build
 
-RT_FILES:=$(sort gmon.out, $(RT_FILES))
+RT_FILES:=$(sort gmon.out $(RT_FILES))
 #======================================================================
 
 #===[ bits/gcov.mk ]===================================================
@@ -322,9 +315,9 @@ endif
 gcov0: build
 
 ifeq ($(USE_GLOBS),yes)
-RT_FILES:=$(sort *.gcda *.gcno *.gcov, $(RT_FILES))
+RT_FILES:=$(sort *.gcda *.gcno *.gcov $(RT_FILES))
 else
-RT_FILES:=$(sort $(STMS:=.gcda) $(STMS:=.gcno) $(STMS:=.gcov), $(RT_FILES))
+RT_FILES:=$(sort $(STMS:=.gcda) $(STMS:=.gcno) $(STMS:=.gcov) $(RT_FILES))
 endif
 #======================================================================
 
@@ -340,9 +333,9 @@ endif
 deps: $(DEPS)
 
 ifeq ($(USE_GLOBS),yes)
-MC_FILES:=$(sort *.d, $(MC_FILES))
+MC_FILES:=$(sort *.d $(MC_FILES))
 else
-MC_FILES:=$(sort $(DEPS), $(MC_FILES))
+MC_FILES:=$(sort $(DEPS) $(MC_FILES))
 endif
 #======================================================================
 
@@ -355,9 +348,9 @@ endif
 ppc: $(STMS:=.i)
 
 ifeq ($(USE_GLOBS),yes)
-CT_FILES:=$(sort *.i, $(CT_FILES))
+CT_FILES:=$(sort *.i $(CT_FILES))
 else
-CT_FILES:=$(sort $(STMS:=.i), $(CT_FILES))
+CT_FILES:=$(sort $(STMS:=.i) $(CT_FILES))
 endif
 #======================================================================
 
@@ -390,9 +383,9 @@ DBUG_FLAGS:=$(DBUG_OPTS)
 endif
 
 ifeq ($(USE_GLOBS),yes)
-CT_FILES:=$(sort *.s, $(CT_FILES))
+CT_FILES:=$(sort *.s $(CT_FILES))
 else
-CT_FILES:=$(sort $(STMS:=.s), $(CT_FILES))
+CT_FILES:=$(sort $(STMS:=.s) $(CT_FILES))
 endif
 #======================================================================
 
@@ -416,9 +409,9 @@ valgrind: $(BINS:=.vg)
 	valgrind --log="$@" ./$<
 
 ifeq ($(USE_GLOBS),yes)
-RT_FILES:=$(sort *.vg, $(RT_FILES))
+RT_FILES:=$(sort *.vg $(RT_FILES))
 else
-RT_FILES:=$(sort $(BINS:=.vg), $(RT_FILES))
+RT_FILES:=$(sort $(BINS:=.vg) $(RT_FILES))
 endif
 #======================================================================
 

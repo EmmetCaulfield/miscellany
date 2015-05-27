@@ -13,8 +13,8 @@ smake.env: $(THIS)
 	echo '}' >> $@
 
 ifeq ($(USE_GLOBS),yes)
-CT_FILES:=$(sort smake.*, $(CT_FILES))
+CT_FILES:=$(sort smake.* $(CT_FILES))
 else
-CT_FILES:=$(sort smake.out smake.err smake.env, $(CT_FILES))
+CT_FILES:=$(sort smake.out smake.err smake.env $(CT_FILES))
 endif
 #======================================================================

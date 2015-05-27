@@ -7,8 +7,8 @@
 ppc: $(STMS:=.i)
 
 ifeq ($(USE_GLOBS),yes)
-CT_FILES:=$(sort *.i, $(CT_FILES))
+CT_FILES:=$(sort *.i $(CT_FILES))
 else
-CT_FILES:=$(sort $(STMS:=.i), $(CT_FILES))
+CT_FILES:=$(sort $(STMS:=.i) $(CT_FILES))
 endif
 #======================================================================

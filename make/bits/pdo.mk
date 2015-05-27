@@ -16,8 +16,8 @@ endif
 pdo2: build
 
 ifeq ($(USE_GLOBS),yes)
-RT_FILES:=$(sort *.gcda, $(RT_FILES))
+RT_FILES:=$(sort *.gcda $(RT_FILES))
 else
-RT_FILES:=$(sort $(STMS:=.gcda), $(RT_FILES))
+RT_FILES:=$(sort $(STMS:=.gcda) $(RT_FILES))
 endif
 #======================================================================

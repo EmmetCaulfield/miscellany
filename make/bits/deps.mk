@@ -10,8 +10,8 @@ endif
 deps: $(DEPS)
 
 ifeq ($(USE_GLOBS),yes)
-MC_FILES:=$(sort *.d, $(MC_FILES))
+MC_FILES:=$(sort *.d $(MC_FILES))
 else
-MC_FILES:=$(sort $(DEPS), $(MC_FILES))
+MC_FILES:=$(sort $(DEPS) $(MC_FILES))
 endif
 #======================================================================

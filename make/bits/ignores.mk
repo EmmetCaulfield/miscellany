@@ -8,7 +8,7 @@
 # We stop short of making the repo changes out of an abundance of caution.
 # ----------------------------------------------------------------------
 NODEPS+=ignores.lst
-CT_FILES:=$(sort ignores.lst, $(CT_FILES))
+CT_FILES:=$(sort ignores.lst $(CT_FILES))
 ignores.lst: $(THIS)
 	echo "$(RT_FILES) $(CT_FILES) $(MC_FILES)" | tr ' ' '\n' > $@
 	test -f .gitignore && sed 's/ //g' .gitignore >> $@

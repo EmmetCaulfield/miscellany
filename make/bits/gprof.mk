@@ -18,5 +18,5 @@ LDFLAGS+=-pg
 endif
 gprof0: build
 
-RT_FILES:=$(sort gmon.out, $(RT_FILES))
+RT_FILES:=$(sort gmon.out $(RT_FILES))
 #======================================================================

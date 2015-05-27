@@ -104,8 +104,6 @@ DBUG_FLAGS:=
 DBUG_OPTS:=-ggdb3
 #======================================================================
 
-_AUX_MK_
-
 
 # Binaries we're going to build:
 BINS:=$(basename $(MAIN))
@@ -150,6 +148,8 @@ build: $(build_deps)
 
 
 # Include bits here:
+
+_AUX_MK_
 
 include(bits/pch.mk)
 include(bits/debug.mk)

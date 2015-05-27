@@ -29,8 +29,8 @@ endif
 gcov0: build
 
 ifeq ($(USE_GLOBS),yes)
-RT_FILES:=$(sort *.gcda *.gcno *.gcov, $(RT_FILES))
+RT_FILES:=$(sort *.gcda *.gcno *.gcov $(RT_FILES))
 else
-RT_FILES:=$(sort $(STMS:=.gcda) $(STMS:=.gcno) $(STMS:=.gcov), $(RT_FILES))
+RT_FILES:=$(sort $(STMS:=.gcda) $(STMS:=.gcno) $(STMS:=.gcov) $(RT_FILES))
 endif
 #======================================================================

@@ -33,15 +33,8 @@ _LOCAL_MK_
 # verbose: nvcc verbose output:
 ifneq (,$(filter verbose,$(MAKECMDGOALS)))
 NV_CXXFLAGS:=-v $(NV_CXXFLAGS)
-NV_PIPECMD=2>&1 |tee $*-make.out
 endif
-verbose: default
-
-ifeq ($(USE_GLOBS),yes)
-RT_FILES:=$(sort *.gcda *.gcno *.gcov, $(RT_FILES))
-else
-RT_FILES:=$(sort $(STMS:=.gcda) $(STMS:=.gcno) $(STMS:=.gcov), $(RT_FILES))
-endif
+verbose: build
 
 
 # regcount: get kernel register count from nvcc
@@ -49,7 +42,7 @@ ifneq (,$(filter regcount,$(MAKECMDGOALS)))
 NV_ASFLAGS:=-Xptxas -v
 NV_PIPECMD:=2>&1|awk -v RS='ptxas info    : Compiling entry function ' -F 'ptxas info    : ' '{print $$1 $$3}' | c++filt
 endif
-regcount: default
+regcount: build
 
 # Generate dependencies for .cu files:
 %.d: %.cu
@@ -61,8 +54,8 @@ regcount: default
 	$(NV_CXX) --cuda $(CPPFLAGS) $(NV_CXXFLAGS) -o $@ $^
 
 ifeq ($(USE_GLOBS),yes)
-CT_FILES:=$(sort *.cpp.li, $(RT_FILES))
+CT_FILES:=$(sort *.cpp.li $(CT_FILES))
 else
-CT_FILES:=$(sort $(CT_FILES), $(addsuffix .cpp.li, $(basename $(filter %.cu, $(MAIN) $(SRCS)))))
+CT_FILES:=$(sort $(CT_FILES) $(addsuffix .cpp.li, $(basename $(filter %.cu, $(MAIN) $(SRCS)))))
 endif
 #======================================================================
