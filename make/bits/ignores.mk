@@ -12,8 +12,8 @@ CT_FILES:=$(sort ignores.lst $(CT_FILES))
 ignores.lst: $(THIS)
 	echo "$(RT_FILES) $(CT_FILES) $(MC_FILES)" | tr ' ' '\n' > $@
 	test -f .gitignore && sed 's/ //g' .gitignore >> $@
-	svn info >/dev/null 2>&1 && svn propget 'svn:ignore' | tr ' ' '\n' >> $@ 
-	LC_ALL=C sort -u $@ > $@.tmp
+	-svn info >/dev/null 2>&1 && svn propget 'svn:ignore' | tr ' ' '\n' >> $@ 
+	LC_ALL=C sort -u $@ | grep -v '^[[:space:]]*$$' > $@.tmp
 	-grep -v '^*' $@.tmp > $@
 	-grep -E '^\*([^.].*|\.[^[]{2,})$$' $@.tmp >> $@
 	sed -n '/*\.[a-z]$$/{s/^\*\.//;H};$${g;/./{s/^/*.[/;s/$$/]/;s/\n//g;p}}' $@.tmp >> $@
