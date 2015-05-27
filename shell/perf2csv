@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+
+usage () {
+    cat<<EOF
+USAGE: $(basename $0) <perf-data-file>
+    
+    Note: consecutive spaces in the paths of binaries or shared objects recorded 
+    in the perf data file will be condensed to a single space in the CSV.
+
+EOF
+    exit 1
+}
+
+warn () {
+    echo "WARNING: $@" >&2
+}
+
+die () {
+    echo "FATAL: $@" >&2
+    exit 2
+}
+
+if [ $# -ne 1 ]; then
+    usage
+fi
+
+PerfData="$1"
+[ -e "$PerfData" ] || die "perf data file '$PerfData' does not exist."
+[ -f "$PerfData" ] || die "perf data file '$PerfData' is not an ordinary file."
+[ -r "$PerfData" ] || die "perf data file '$PerfData' is not readable."
+
+OutFile=${PerfData%.*}.csv
+[ -e "$OutFileData" ] && die "output file '$OutFile' already exists."
+
+
+# Array of temporary files to auto-zap on exit:
+declare -a TmpFiles
+on_exit () {
+    for f in "${TmpFiles[@]}"; do
+	rm -f "$f"
+    done
+}
+add_temp_files () {
+    for a in "$@"; do
+	TmpFiles+=("$a")
+    done
+}
+trap on_exit EXIT
+
+# Array of problematic fields:
+declare -a ProbFields
+read_prob_fields () {
+    local field
+    while read; do
+	field=$(echo "$REPLY" | awk -F"'" 'NF>1 {print $(NF-NF%2)}')
+	if [ -n "$field" ]; then
+	    ProbFields+=("$field")
+	fi
+    done < $SavePipe
+}
+
+zap_fields () {
+    declare -A zap
+    for f in "$@"; do
+	zap[$f]=$f
+    done
+
+    declare -i end=${#OkFields[*]}
+    for ((i=0; i<end; i++)); do
+	field=${OkFields[$i]}
+	if [ -n "${zap[$field]}" ]; then
+	    OkFields=( ${OkFields[*]:0:$i} ${OkFields[*]:$i+1:$end-$i} )
+	    [ -z "$NO_WARN" ] && warn "perf rejected '$field' field for '$PerfData'"
+	    end=${#OkFields[*]}
+	fi
+    done
+}
+
+join () {
+    local IFS=,
+    echo "$*"
+}
+
+# These are all the columns in the perf-script manpage:
+OkFields=(comm tid pid time cpu event trace ip sym dso addr symoff)
+
+# Open pipe and temp file:
+SavePipe=$(mktemp -u)
+add_temp_files "$SavePipe"
+temp_out=$(mktemp) || die "Failed to create temporary file"
+add_temp_files "$temp_out"
+mkfifo "$SavePipe" || die "Failed to create data pipe"
+
+# Unfortunately, 'perf' can (and does) gripe about new bad fields
+# after you've already removed the ones it complained about the first
+# time...
+while true; do
+    perf script -f $(join ${OkFields[*]}) -i "$PerfData" \
+	1> "$temp_out"  \
+	2> "$SavePipe" &
+
+    read_prob_fields
+
+    if [ ${#ProbFields[*]} -eq 0 ]; then
+	break
+    fi
+
+    zap_fields ${ProbFields[*]}
+    ProbFields=()
+done
+
+# The number of awk fields is 2 less than what's fed to perf: one
+# because 'symoff' is included by tagging +0xXXX onto the end of
+# 'sym', but only when 'symoff' is known, otherwise there's no "+" to
+# split on, and another because tid and pid are separated by a slash,
+# not whitespace. We can't use a slash for a separator because of file
+# paths in 'dso'
+NO_WARN=true
+zap_fields 'symoff'
+
+# Now that we fixed 'symoff', the awk idea of NF is only one less:
+naf=$((${#OkFields[*]}-1))
+
+# Print the (quoted) header:
+join ${OkFields[*]} | sed 's/^/"/; s/,/","/g; s/$/"/'> $OutFile
+
+# Filter the perf output through awk to turn it into CSV:
+awk -v OFS=, '$1!="#" && NF>='$naf' {
+    sub(/\//, OFS, $2);
+    sub(/:/, "", $3);
+    sub(/:/, "", $4);
+    for(i='$naf'+1; i<=NF; i++) {
+        $'$naf' = $'$naf' " " $i; 
+    }
+    q="\"";
+    print q $1 q, $2, $3, q $4 q, "0x" $5, q $6 q, q $7 q
+}' $temp_out >> $OutFile
+
+nr=$(( $(wc -l < $OutFile)-1 ))
+echo "Wrote $nr records to '$OutFile'"
