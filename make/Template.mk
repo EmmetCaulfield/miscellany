@@ -51,14 +51,15 @@ LDLIBS:=_LDL_
 # exclude language option flags (LANG_FLAGS), which can cause it to
 # choke.
 #----------------------------------------------------------------------
-# Warning and error flags; these are not altered by other targets:
+# Warning and error flags; these are not altered by utility targets:
 WARN_FLAGS:=-Wall -Wextra
 
-# Language option flags; these are not altered by other targets:
+# Language option flags; these are not altered by utility targets:
 LANG_FLAGS:=_CLO_ -pedantic
 
 # Optimization flags; the level (-Ox) is removed by the 'debug0',
-# 'gprof0', and 'gcov0' targets:
+# 'gprof0', and 'gcov0' targets, and (potentially) altered by the
+# 'O0', 'O1', 'O2', 'O3', 'Os', 'Ofast', and 'Og' targets.
 OPTM_FLAGS:=-O3 -march=native
 
 # Profiling and DBUG flags. These flags are SET by utility targets
@@ -153,6 +154,7 @@ _AUX_MK_
 
 include(bits/pch.mk)
 include(bits/debug.mk)
+include(bits/optim.mk)
 include(bits/gprof.mk)
 include(bits/gcov.mk)
 include(bits/deps.mk)
