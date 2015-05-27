@@ -121,9 +121,9 @@ STMS:=$(BINS) $(basename $(SRCS))
 # Let the builtin implicit rule build object-code files:
 OBJS:=$(addsuffix .o,$(basename $(SRCS)))
 ifeq ($(USE_GLOBS),yes)
-CT_FILES+=*.o
+CT_FILES:=$(sort *.o $(CT_FILES))
 else
-CT_FILES+=$(STMS:=.o)
+CT_FILES:=$(sort $(STMS:=.o) $(CT_FILES))
 endif
 
 # Dependency files:
