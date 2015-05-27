@@ -51,14 +51,15 @@ LDLIBS:=-lstdc++
 # exclude language option flags (LANG_FLAGS), which can cause it to
 # choke.
 #----------------------------------------------------------------------
-# Warning and error flags; these are not altered by other targets:
+# Warning and error flags; these are not altered by utility targets:
 WARN_FLAGS:=-Wall -Wextra
 
-# Language option flags; these are not altered by other targets:
+# Language option flags; these are not altered by utility targets:
 LANG_FLAGS:=-std=c++11 -pedantic
 
 # Optimization flags; the level (-Ox) is removed by the 'debug0',
-# 'gprof0', and 'gcov0' targets:
+# 'gprof0', and 'gcov0' targets, and (potentially) altered by the
+# 'O0', 'O1', 'O2', 'O3', 'Os', 'Ofast', and 'Og' targets.
 OPTM_FLAGS:=-O3 -march=native
 
 # Profiling and DBUG flags. These flags are SET by utility targets
@@ -166,11 +167,14 @@ endif
 #======================================================================
 
 #===[ bits/debug.mk ]==================================================
-# debug, debug0: make debug binaries.
+# debug, debug0. debugg: make debug binaries.
 #
 # The 'debug' target leaves optimization alone, while the 'debug0'
-# target disables optimization. Both targets remove -DNDEBUG, if
-# present, which disables assert() macros.
+# target disables optimization, and the 'debugg' target enables -Og,
+# the recommended optimization level for development. All three
+# targets remove -DNDEBUG, if present, which disables assert() macros,
+# so that assert macros() are enabled.
+# ----------------------------------------------------------------------
 ifneq (,$(filter debug,$(MAKECMDGOALS)))
 CPPFLAGS:=$(subst -DNDEBUG,,$(CPPFLAGS))
 DBUG_FLAGS:=$(DBUG_OPTS)
@@ -185,6 +189,62 @@ DBUG_FLAGS:=$(DBUG_OPTS)
 LDFLAGS+=$(DBUG_OPTS)
 endif
 debug0: build
+
+ifneq (,$(filter debugg,$(MAKECMDGOALS)))
+CPPFLAGS:=$(subst -DNDEBUG,,$(CPPFLAGS))
+OPTM_FLAGS:=$(filter-out -O%,$(OPTM_FLAGS))
+OPTM_FLAGS+=-Og
+DBUG_FLAGS:=$(DBUG_OPTS)
+LDFLAGS+=$(DBUG_OPTS)
+endif
+debugg: build
+#======================================================================
+
+#===[ bits/optim.mk ]==================================================
+# O0, O1, O2, O3, Os, Ofast, Og: targets for every optimization level
+# supported by 'gcc'
+#----------------------------------------------------------------------
+ifneq (,$(filter O0,$(MAKECMDGOALS)))
+OPTM_FLAGS:=$(filter-out -O%,$(OPTM_FLAGS))
+OPTM_FLAGS+=-O0
+endif
+O0: build
+
+ifneq (,$(filter O1,$(MAKECMDGOALS)))
+OPTM_FLAGS:=$(filter-out -O%,$(OPTM_FLAGS))
+OPTM_FLAGS+=-O1
+endif
+O1: build
+
+ifneq (,$(filter O2,$(MAKECMDGOALS)))
+OPTM_FLAGS:=$(filter-out -O%,$(OPTM_FLAGS))
+OPTM_FLAGS+=-O2
+endif
+O2: build
+
+ifneq (,$(filter O3,$(MAKECMDGOALS)))
+OPTM_FLAGS:=$(filter-out -O%,$(OPTM_FLAGS))
+OPTM_FLAGS+=-O3
+endif
+O3: build
+
+ifneq (,$(filter Os,$(MAKECMDGOALS)))
+OPTM_FLAGS:=$(filter-out -O%,$(OPTM_FLAGS))
+OPTM_FLAGS+=-Os
+endif
+Os: build
+
+ifneq (,$(filter Ofast,$(MAKECMDGOALS)))
+OPTM_FLAGS:=$(filter-out -O%,$(OPTM_FLAGS))
+OPTM_FLAGS+=-Ofast
+endif
+Ofast: build
+
+ifneq (,$(filter Og,$(MAKECMDGOALS)))
+OPTM_FLAGS:=$(filter-out -O%,$(OPTM_FLAGS))
+OPTM_FLAGS+=-Og
+endif
+Og: build
 #======================================================================
 
 #===[ bits/gprof.mk ]==================================================
