@@ -18,5 +18,13 @@ LDFLAGS+=-pg
 endif
 gprof0: build
 
+ifneq (,$(filter gprofg,$(MAKECMDGOALS)))
+OPTM_FLAGS:=$(filter-out -O%,$(OPTM_FLAGS))
+OPTM_FLAGS+=-Og
+PROF_FLAGS:=-pg
+LDFLAGS+=-pg
+endif
+gprofg: build
+
 RT_FILES:=$(sort gmon.out $(RT_FILES))
 #======================================================================
