@@ -29,12 +29,12 @@ _CVD_
 # Preprocessor flags; -DNDEBUG is removed by 'debug' targets.
 CPPFLAGS:=-I. -DNDEBUG
 
-# Compiler flags; change the 5 *_FLAGS variables, below, not this
-# definition, which must remain recursive:
-_FMV_=$(DBUG_FLAGS) $(LANG_FLAGS) $(PROF_FLAGS) $(WARN_FLAGS) $(OPTM_FLAGS)
+# Compiler flags; change the 7 *_FLAGS variables, explained below, not
+# this definition.
+_FMV_=$(BHVR_FLAGS) $(CGEN_FLAGS) $(DBUG_FLAGS) $(LANG_FLAGS) $(PROF_FLAGS) $(WARN_FLAGS) $(OPTM_FLAGS)
 
 # Linker flags; 'debug', 'gprof', and 'pdo' targets append to LDFLAGS:
-LDFLAGS:=
+LDFLAGS=$(CGEN_FLAGS)
 
 # Linker libs; 'gcov' targets append to LDLIBS
 LDLIBS:=_LDL_
@@ -42,15 +42,32 @@ LDLIBS:=_LDL_
 
 
 #======================================================================
-# 5 *_FLAGS VARIABLES
+# 7 Classes of Compiler Flags: *_FLAGS VARIABLES
 #
 # What follows are non-standard variables that are combined to produce
-# _FMV_, a standard implicit variable, per the definition above. The
-# reason for doing this is to have the flexibility to work around
-# certain bugs in 'nvcc'; in particular, to have the ability to
-# exclude language option flags (LANG_FLAGS), which can cause it to
+# _FMV_, a standard implicit variable, per the definition above.
+#
+# The original reason for doing this was to have the flexibility to
+# work around certain bugs in 'nvcc'; in particular, to have the
+# ability to exclude language option flags (LANG_FLAGS), which 'nvcc'
+# erroneously passed to gcc in both C and C++ mode, causing gcc to
 # choke.
-#----------------------------------------------------------------------
+#
+# Now, however, this enables the "modular" nature of this Makefile,
+# and the number of classes has been expanded to 7. It makes it easy
+# to make utility pseudo-targets orthogonal, so that they can be used
+# in combination, e.g. "verbose O3"
+#
+# ----------------------------------------------------------------------
+# Compiler behavior flags that affect compiler behavior, but not the
+# generated code, and are not warning flags (e.g. "-v"):
+BHVR_FLAGS:=
+
+# Code generation flags that might/do affect the generated output
+# code, but are not optimization flags (e.g. "-pthread"). These are
+# generally also passed to the linker:
+CGEN_FLAGS:=
+
 # Warning and error flags; these are not altered by utility targets:
 WARN_FLAGS:=-Wall -Wextra
 
@@ -143,10 +160,12 @@ build: $(build_deps)
 default: build
 
 
-# Include bits here:
-
+#######################################################################
+# Include "modules" from ./bits/ here                                 #
+#######################################################################
 _AUX_MK_
 
+include(bits/verbose.mk)
 include(bits/pch.mk)
 include(bits/debug.mk)
 include(bits/optim.mk)
@@ -158,6 +177,7 @@ include(bits/asm.mk)
 include(bits/doxygen.mk)
 include(bits/valgrind.mk)
 include(bits/ignores.mk)
+#######################################################################
 
 
 # Remove runtime-generated files
