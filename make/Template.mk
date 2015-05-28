@@ -180,11 +180,20 @@ NODEPS+=clean
 clean: make-control-clean compile-time-clean run-time-clean
 
 
+# There are now enough varied "make control" files to warrant choosing
+# between a glob and individual listing. The 3 files listed here are
+# added by the 3 rules that follow.
+ifeq ($(USE_GLOBS),yes)
+MC_FILES:=$(sort _*.mk $(MC_FILES))
+else
+MC_FILES:=$(sort _last.mk _phonies.mk _multi.mk $(MC_FILES))
+endif
+
+
 # Make a record of this make run:
 NODEPS+=_last.mk
 _last.mk:
 	@echo 'LAST:=$(MAKECMDGOALS)' > $@
-MC_FILES+=_last.mk
 
 
 # Silently extract phony targets from this Makefile:
@@ -194,7 +203,6 @@ _phonies.mk: $(THIS)
 	@grep -E '^[a-z][a-z0-]+:([^=]|$$)' $< |cut -d: -f1 |grep -v '^doc$$' \
 		|tr '\n' ' ' >> $@
 	@echo '\n.PHONY: $$(PHONY)' >> $@
-MC_FILES+=_phonies.mk
 -include _phonies.mk
 
 
@@ -203,7 +211,6 @@ NO_DEPS+=_multi.mk
 _multi.mk: $(THIS)
 	@rm -f $@
 	@for b in $(BINS); do echo $$b: $$b.o $(OBJS) >> $@; done
-MC_FILES+=_multi.mk
 
 
 # Include automagic dependencies for all targets except the ones we
