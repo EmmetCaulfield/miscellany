@@ -14,7 +14,7 @@ NV_LIBS:=-lcudart -lm -lstdc++
 LDLIBS:=$(filter-out $(NV_LIBS), $(LDLIBS)) $(NV_LIBS)
 
 # A trick to get nvcc-safe CXXFLAGS as a comma-separated list:
-COMFLAGS=$(DBUG_FLAGS) $(PROF_FLAGS) $(WARN_FLAGS) $(OPTM_FLAGS)
+COMFLAGS=$(BHVR_FLAGS) $(CGEN_FLAGS) $(DBUG_FLAGS) $(PROF_FLAGS) $(WARN_FLAGS) $(OPTM_FLAGS)
 null:=
 space:= $(null) #
 comma:= ,
@@ -39,10 +39,10 @@ NV_PIPECMD:=
 _LOCAL_MK_
 
 # verbose: nvcc verbose output:
-ifneq (,$(filter verbose,$(MAKECMDGOALS)))
+ifneq (,$(filter cuverbose,$(MAKECMDGOALS)))
 NV_CXXFLAGS:=-v $(NV_CXXFLAGS)
 endif
-verbose: build
+cuverbose: build
 
 
 # regcount: get kernel register count from nvcc
