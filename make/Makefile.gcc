@@ -129,9 +129,7 @@ endif
 # Dependency files:
 DEPS:=$(STMS:=.d)
 
-# Default rule: build the binaries!
-default: build
-
+# Handle remaking with the same/different utility pseudo-target:
 -include _last.mk
 ifeq ($(LAST),$(MAKECMDGOALS))
   build_deps:=$(BINS) _last.mk
@@ -141,11 +139,8 @@ endif
 build: $(build_deps)
 
 
-# Implicit rule to build binaries, which assumes that binaries depend
-# on all the other object-code files, i.e. the ones in $(OBJS), which
-# come from sources without a main().
-%: %.o $(OBJS)
-	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+# Default rule: build the binaries!
+default: build
 
 
 # Include bits here:
@@ -455,7 +450,7 @@ MC_FILES+=_last.mk
 
 # Silently extract phony targets from this Makefile:
 NODEPS+=_phonies.mk
-phonies.mk: $(THIS)
+_phonies.mk: $(THIS)
 	@echo -n 'PHONY:=_last.mk ' > $@
 	@grep -E '^[a-z][a-z0-]+:([^=]|$$)' $< |cut -d: -f1 |grep -v '^doc$$' \
 		|tr '\n' ' ' >> $@
@@ -464,9 +459,18 @@ MC_FILES+=_phonies.mk
 -include _phonies.mk
 
 
+# Support building multiple binaries from the same dependencies:
+NO_DEPS+=_multi.mk
+_multi.mk: $(THIS)
+	@rm -f $@
+	@for b in $(BINS); do echo $$b: $$b.o $(OBJS) >> $@; done
+MC_FILES+=_multi.mk
+
+
 # Include automagic dependencies for all targets except the ones we
 # explictly exclude:
 ifeq (,$(filter $(NODEPS),$(MAKECMDGOALS)))
 -include $(DEPS)
+-include _multi.mk
 endif
 
