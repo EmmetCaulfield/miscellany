@@ -2,8 +2,16 @@
 # CUDA/nvcc support
 #----------------------------------------------------------------------
 # CUDA additions to standart implicit variables:
-LDFLAGS:=-L$(CUDA_PATH)/lib64
-LDLIBS:=-lcudart -lm $(LDLIBS)
+LDFLAGS+=-L$(CUDA_PATH)/lib64
+
+# At an absolute minimum, any CUDA app must be linked with the
+# following libraries:
+NV_LIBS:=-lcudart -lm -lstdc++
+
+# The above libraries should go at the end of LDLIBS and, ideally, not
+# be repeated, particularly if the --as-needed option is provided to
+# the linker (-Wl,--as-needed):
+LDLIBS:=$(filter-out $(NV_LIBS), $(LD_LIBS)) $(NV_LIBS)
 
 # A trick to get nvcc-safe CXXFLAGS as a comma-separated list:
 COMFLAGS=$(DBUG_FLAGS) $(PROF_FLAGS) $(WARN_FLAGS) $(OPTM_FLAGS)
