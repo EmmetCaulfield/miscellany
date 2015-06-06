@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-sed -n '/-mrtl-start-/,${s/;.*$//; /./p}' "$1" | tee mopal.out | awk '
+sed -n '/-mrtl-start-/,${s/;.*$//; /./p}' "$1" | awk '
 BEGIN { 
     # Node box/bubble colors
     writeVarColor = "lightpink"
