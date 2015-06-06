@@ -1,0 +1,220 @@
+#!/usr/bin/env bash
+
+sed -n '/-mrtl-start-/,${s/;.*$//; /./p}' "$1" | tee mopal.out | awk '
+BEGIN { 
+    # Node box/bubble colors
+    writeVarColor = "lightpink"
+    readVarColor  = "lightgreen"
+    functionColor = "lightblue"
+    tempColor     = "lightgrey"
+    groupColor    = "beige"
+
+    varShape      = "box"
+    GroupStyle    = "margin=20; style=filled; color=" groupColor ";"
+
+    # Edge styles:
+    FunctionStyle  = "[margin=\"0,0.055\" fillcolor=" functionColor ",shape=polygon,sides=4,distortion=.17]"
+    PrevWriteStyle = "[weight=10,color=grey,arrowhead=empty]"
+    PrevReadStyle  = "[constraint=false,style=dashed,color=lightgrey,arrowhead=empty]"
+    LoopBackStyle  = "[constraint=false,style=dashed]"
+
+    IndentLevel=0;
+    RegT
+    RegR
+    StatementSeq=0 
+    GroupSeq=0
+    ConstSeq=0
+    split("", FuncList)
+    split("", VarList)
+    split("", FirstRead)
+    split("", PrevWrite)
+    split("", EdgeDrawn)
+    split("", ConstList)
+}
+
+$2~/-mrtl-start-/ {
+    print "digraph", tag($2), "{"
+    IndentLevel=1
+    print indent() "node [fontname=monospace,style=filled,fillcolor=" tempColor "]"
+    print indent() "edge [weight=10,labelfontsize=8,labeldistance=1.0,labelangle=-45]" 
+}
+$2~/-mrtl-end-/ {
+    if( IndentLevel==1 ) {
+        print_fn_nodes()
+        print_var_nodes()
+    }
+
+    IndentLevel--
+    print indent() "}"
+}
+$2~/-mrtl-group-/ {
+    print indent() "subgraph cluster_" GroupSeq++ " {"
+    IndentLevel++
+    print indent() "label = \"" tag($2) "\""
+    print indent() GroupStyle
+
+}
+NF==3 && $3!~/[()]/ {
+    dest=rd($3)
+    if( $3 in PrevWrite || $3 in FirstRead ) {
+        if( $3 in PrevWrite ) {
+            node=PrevWrite[$3]
+            attr=PrevWriteStyle
+        } else {
+            node=FirstRead[$3]
+            attr=PrevReadStyle
+        }
+        if( node!=dest ) {
+            edge=node " -> " dest
+            if( !(edge in EdgeDrawn) ) {
+                print indent() edge, endLabel(attr) 
+                EdgeDrawn[edge]=1
+            }
+        }
+    }
+    print indent() dest, "->", wr($1,$2), endLabel(op($2)) 
+}
+NF==3 && $3~/[()]/ {
+# FIXME
+    if( $2 != "=" || ($1 != "T" && $1 != "R") ) {
+        print "Bad mopal: only \"T = \" or \"R = \" (not \"" $1, $2 " \") allowed left of function call: " $0 > "/dev/stderr"
+        exit 1
+    }
+    
+    parse_function_call($3, args)
+    name = args[1]
+    for( i=2; i<length(args); i++ ) {
+        if( args[i] ~ /^[0-9.]*$/ ) continue;
+        print indent() rd(args[i]), "->", name, endLabel()
+    }
+    print indent() name, "->", wr($1,$2), endLabel()
+}
+
+
+# Extract tag ("Foo") "-mrtl-start-Foo"
+function tag(mdir,    fields) {
+    split(mdir, fields, "-")
+    return fields[4]
+}
+
+# Return indent whitespace according to level
+function indent() {
+    return sprintf("%*s", IndentLevel*4, "")
+}
+
+# A read variable:
+function rd(name,     label) {
+    if( name=="T" ) return RegT
+    if( name=="R" ) return RegR
+    if( name ~ /^[0-9.]+$/ ) {
+        label = "_const_" ConstSeq++
+        ConstList[label]=name
+        return label
+    }
+
+    label = name "_" GroupSeq
+    if( !(name in FirstRead) ) {
+        FirstRead[name]=label
+    }
+    VarList[label] += 0
+    return label
+}
+
+# A written variable:
+function wr(name, op,    label) {
+    if( name=="T" ) {
+        if( op=="=" ) RegT = "T" NR
+        return RegT
+    }
+    if( name=="R" ) {
+        if( op=="=" ) RegR = "R" NR
+        return RegR
+    }
+    if( op!="=" ) { 
+        print "Bad mopal: Only T or R allowed on LHS of \"" op "\": " $0 > "/dev/stderr"
+        exit 1
+    }
+    label = name "_" GroupSeq
+    PrevWrite[name]=label
+    VarList[label] += 1
+    return label
+}
+
+# Extracts function name and arguments from a function call:
+function parse_function_call(call, args,    name) {
+    split(call, args, /[(),]/)
+    name = args[1]
+    sub(/_$/, "", name)
+    args[1] = name FuncList[name]++
+}
+
+# Edge style by operator:
+function op(arg) {
+    switch(arg) {
+        case   "=": return "[arrowhead=\"normal\"]"
+        case  "+=": return "[arrowhead=\"box\"]"
+        case  "-=": return "[arrowhead=\"obox\"]"
+        case  "*=": return "[arrowhead=\"dot\"]"
+        case ".*=": return "[arrowhead=\"odot\"]"
+        case  "/=": return "[arrowhead=\"diamond\"]"
+        case "./=": return "[arrowhead=\"odiamond\"]"
+    }
+}
+
+# Print function node styles at the end:
+function print_fn_nodes(    key,i) {
+    for(key in FuncList) {
+        for(i=0; i<FuncList[key]; i++) {
+            print indent() key i, mergeAttrs("label=\"" key "()\"", FunctionStyle)
+        }
+    }
+}
+
+# Print non-temporary variable node styles at the end:
+function print_var_nodes(    name,node,src,dst,edge) {
+    for(node in VarList) {
+        name = node
+        sub(/_[0-9]+$/, "", name)
+        print indent() node, "[label=\"" name "\", shape=" varShape ",fillcolor=" (VarList[node]==0 ? readVarColor : writeVarColor ) "]"
+        if( (name in FirstRead) && (name in PrevWrite) ) {
+            src=PrevWrite[name]
+            dst=FirstRead[name]
+            if( src != dst ) {
+                edge=src " -> " dst
+                if( !(edge in EdgeDrawn) ) {
+                    print indent() src, "->", dst, LoopBackStyle
+                    EdgeDrawn[edge]=1
+                }
+            }
+        }
+    }
+    for(node in ConstList) {
+        print indent() node, "[weight=1000,label=\"" ConstList[node] "\"]"
+    }
+}
+
+# Edge head/tail labels:
+function endLabel(attrs,    l,a) {
+    StatementSeq++;
+    l=StatementSeq;
+    a="headlabel=\"" l "\", taillabel=\"" l "\""
+    return mergeAttrs(a,attrs)
+}
+
+# Combine attributes:
+function mergeAttrs(al1, al2,     attrs1,attrs2,str,i) {
+    gsub(/[\[\]]/, "", al1)
+    gsub(/[\[\]]/, "", al2)
+    split(al1, attrs1, / *, */)
+    split(al2, attrs2, / *, */)
+    str=""
+    for(i in attrs1) {
+        str=str "," attrs1[i]
+    }
+    for(i in attrs2) {
+        str=str "," attrs2[i]
+    }
+    sub(/^,/, "", str)
+    return "[" str "]";
+}
+'
