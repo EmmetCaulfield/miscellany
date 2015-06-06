@@ -1,0 +1,9 @@
+Refactor to put most commonly used variables at the top, rather than
+   standard implicit variables.
+
+Add "help" pseudo-target.
+
+Think about and test orthogonality of different
+   pseudo-targets. Consider changes that enable orthogonal use, and
+   might reduce the total number of targets. For example 'debug0'
+   might be replaced by 'debug O0'
