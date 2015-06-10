@@ -13,7 +13,8 @@ W1=ones(numClasses, numNeurons);
 b0=ones(1, numNeurons);
 b1=ones(1, numClasses);
 
-
+% We're only interested in the matrix dimensions, so we don't bother
+% with realistic functions, only ones that are dimensionally correct:
 colsum  = @(x) sum(x,1);
 rowsum  = @(x) sum(x,2);
 sigmoid = @(x) x;
@@ -23,8 +24,8 @@ lambda  = 1;
 rho     = 1;
 
 
-% -mrtl-start-ANN
-% -mrtl-group-feedForward
+% -mopal-start-ANN
+% -mopal-group-feedForward
 
 T    = X                      ;
 R    = tr(W0)                 ;
@@ -45,9 +46,9 @@ z1   = T                      ;
 T    = softmax(z1)            ;
 a1   = T                      ;
 yc   = T                      ;
-% -mrtl-end-feedForward
+% -mopal-end-feedForward
 
-% -mrtl-group-backPropagate
+% -mopal-group-backPropagate
 T      = yc           ;
 T     -= y            ;
 T     /= batchSize    ;
@@ -84,8 +85,8 @@ dW0    = T            ;
 T      = colsum(dz1)  ;
 db0    = T            ;
 
-% -mrtl-end-backPropagate
-% -mrtl-group-descend
+% -mopal-end-backPropagate
+% -mopal-group-descend
 
 T    = W0  ;
 R    = dW0 ;
@@ -111,5 +112,5 @@ R   *= rho ;
 T   -= R   ;
 b1   = T   ;
 
-% -mrtl-end-descend
-% -mrtl-end-ANN
+% -mopal-end-descend
+% -mopal-end-ANN

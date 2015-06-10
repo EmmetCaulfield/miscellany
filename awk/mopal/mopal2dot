@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-sed -n '/-mrtl-start-/,${s/;.*$//; /./p}' "$1" | awk '
+sed -n '/-mopal-start-/,${s/;.*$//; /./p}' "$1" | awk '
 BEGIN { 
     # Node box/bubble colors
     writeVarColor = "lightpink"
@@ -32,13 +32,13 @@ BEGIN {
     split("", ConstList)
 }
 
-$2~/-mrtl-start-/ {
+$2~/-mopal-start-/ {
     print "digraph", tag($2), "{"
     IndentLevel=1
     print indent() "node [fontname=monospace,style=filled,fillcolor=" tempColor "]"
     print indent() "edge [weight=10,labelfontsize=8,labeldistance=1.0,labelangle=-45]" 
 }
-$2~/-mrtl-end-/ {
+$2~/-mopal-end-/ {
     if( IndentLevel==1 ) {
         print_fn_nodes()
         print_var_nodes()
@@ -47,7 +47,7 @@ $2~/-mrtl-end-/ {
     IndentLevel--
     print indent() "}"
 }
-$2~/-mrtl-group-/ {
+$2~/-mopal-group-/ {
     print indent() "subgraph cluster_" GroupSeq++ " {"
     IndentLevel++
     print indent() "label = \"" tag($2) "\""
@@ -91,7 +91,7 @@ NF==3 && $3~/[()]/ {
 }
 
 
-# Extract tag ("Foo") "-mrtl-start-Foo"
+# Extract tag ("Foo") "-mopal-start-Foo"
 function tag(mdir,    fields) {
     split(mdir, fields, "-")
     return fields[4]
