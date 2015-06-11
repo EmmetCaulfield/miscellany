@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-sed_re="/^[0-9a-f]\{16\} <[A-Za-z_][A-Za-z0-9_]\+(/,/^\$/p"
+sed_re="/^[0-9a-f]\{16\} <[A-Za-z_][A-Za-z0-9_]\+/,/^\$/p"
 if [ -n "$2" ]; then
     sed_re="/^[0-9a-f]\{16\} <$2(/,/^\$/p"
 fi
 
-objdump -dC "$1" | sed -n "${sed_re}" | awk -F'\t' '
+objdump -dC "$1" | sed -n "${sed_re}" | tee postsed.out | awk -F'\t' '
 function min(x,y) { return x<y ? x : y }
 function max(x,y) { return x>y ? x : y }
 function hex2int(s) {
@@ -16,7 +16,11 @@ function set(s,n,c) {
     return( substr(s,1,n-1) c substr(s,n+length(c)) ) 
 }
 
-function graph(lineArray, firstLine, numLines) {
+function graph(lineArray, firstLine, numLines,
+id,ids,maxId,nr,field,srcLine,dstLine,dstAddr,lineAddr,lineToAddr,addrToLine,
+arcUpr,arcLwr,arcLen,arcDir,arcIdByUpr,arcIdByLwr,idByLenRank,laneCount,maxLane,
+minLane,i,j,ul,ll,ln,conflict,cul,cll,laneNumById,idByLaneNum,laneStr,idList,
+corner,direction,selfLoop,dashes,arrow) {
     maxId=1
 
     for(nr=firstLine; nr<=firstLine+numLines; nr++) {
@@ -149,6 +153,7 @@ $0=="" {
 }
 END {
     firstLine=1
+    print maxFuncs, NR
     for(funcNo=1; funcNo<maxFuncs; funcNo++) {
         lastLine=breaks[funcNo]
         graph(line, firstLine, lastLine-firstLine)
