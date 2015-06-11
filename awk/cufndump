@@ -166,11 +166,9 @@ NF==1 && $1~/^\.{40,}/ {
     line[NR]=$0
 }
 END {
-    print maxFuncs
     firstLine=1
     for(funcNo=1; funcNo<maxFuncs; funcNo++) {
         lastLine=breaks[funcNo]
-        print funcNo, firstLine, lastLine
         graph(line, firstLine, lastLine-firstLine)
         firstLine=lastLine+1
     }
