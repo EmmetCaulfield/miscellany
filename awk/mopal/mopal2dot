@@ -1,20 +1,33 @@
 #!/usr/bin/env bash
 
-sed -n '/-mopal-start-/,${s/;.*$//; /./p}' "$1" | awk '
+declare -i opt_l=0
+while [[ "$1" =~ ^- ]]; do
+    case $1 in
+        -l)
+            opt_l=1
+            ;;
+    esac
+    shift
+done
+
+sed -n '/-mopal-start-/,${s/;.*$//; /./p}' "$1" | awk -v LOOP=$opt_l '
 BEGIN { 
     # Node box/bubble colors
     writeVarColor = "lightpink"
     readVarColor  = "lightgreen"
     functionColor = "lightblue"
     tempColor     = "lightgrey"
-    groupColor    = "beige"
+    literalColor  = "white"
+    groupColor0   = "beige"
+    groupColor1   = "azure"
 
     varShape      = "box"
-    GroupStyle    = "margin=20; style=filled; color=" groupColor ";"
+    GroupStyle[0] = "margin=20; style=filled; color=" groupColor0 ";"
+    GroupStyle[1] = "margin=20; style=filled; color=" groupColor1 ";"
 
     # Edge styles:
     FunctionStyle  = "[margin=\"0,0.055\" fillcolor=" functionColor ",shape=polygon,sides=4,distortion=.17]"
-    PrevWriteStyle = "[weight=10,color=grey,arrowhead=empty]"
+    PrevWriteStyle = "[weight=10,color=grey]"
     PrevReadStyle  = "[constraint=false,style=dashed,color=lightgrey,arrowhead=empty]"
     LoopBackStyle  = "[constraint=false,style=dashed]"
 
@@ -23,13 +36,13 @@ BEGIN {
     RegR
     StatementSeq=0 
     GroupSeq=0
-    ConstSeq=0
+    LiteralSeq=0
     split("", FuncList)
     split("", VarList)
     split("", FirstRead)
     split("", PrevWrite)
     split("", EdgeDrawn)
-    split("", ConstList)
+    split("", LiteralList)
 }
 
 $2~/-mopal-start-/ {
@@ -51,7 +64,7 @@ $2~/-mopal-group-/ {
     print indent() "subgraph cluster_" GroupSeq++ " {"
     IndentLevel++
     print indent() "label = \"" tag($2) "\""
-    print indent() GroupStyle
+    print indent() GroupStyle[IndentLevel%2]
 
 }
 NF==3 && $3!~/[()]/ {
@@ -77,7 +90,7 @@ NF==3 && $3!~/[()]/ {
 NF==3 && $3~/[()]/ {
 # FIXME
     if( $2 != "=" || ($1 != "T" && $1 != "R") ) {
-        print "Bad mopal: only \"T = \" or \"R = \" (not \"" $1, $2 " \") allowed left of function call: " $0 > "/dev/stderr"
+        print "Bad MOPAL: only \"T = \" or \"R = \" (not \"" $1, $2 " \") allowed left of function call: " $0 > "/dev/stderr"
         exit 1
     }
     
@@ -107,8 +120,8 @@ function rd(name,     label) {
     if( name=="T" ) return RegT
     if( name=="R" ) return RegR
     if( name ~ /^[0-9.]+$/ ) {
-        label = "_const_" ConstSeq++
-        ConstList[label]=name
+        label = "_literal_" LiteralSeq++
+        LiteralList[label]=name
         return label
     }
 
@@ -131,7 +144,7 @@ function wr(name, op,    label) {
         return RegR
     }
     if( op!="=" ) { 
-        print "Bad mopal: Only T or R allowed on LHS of \"" op "\": " $0 > "/dev/stderr"
+        print "Bad MOPAL: Only T or R allowed on LHS of \"" op "\": " $0 > "/dev/stderr"
         exit 1
     }
     label = name "_" GroupSeq
@@ -176,7 +189,7 @@ function print_var_nodes(    name,node,src,dst,edge) {
         name = node
         sub(/_[0-9]+$/, "", name)
         print indent() node, "[label=\"" name "\", shape=" varShape ",fillcolor=" (VarList[node]==0 ? readVarColor : writeVarColor ) "]"
-        if( (name in FirstRead) && (name in PrevWrite) ) {
+        if( LOOP && (name in FirstRead) && (name in PrevWrite) ) {
             src=PrevWrite[name]
             dst=FirstRead[name]
             if( src != dst ) {
@@ -188,8 +201,8 @@ function print_var_nodes(    name,node,src,dst,edge) {
             }
         }
     }
-    for(node in ConstList) {
-        print indent() node, "[weight=1000,label=\"" ConstList[node] "\"]"
+    for(node in LiteralList) {
+        print indent() node, "[weight=1000,fillcolor=" literalColor ",label=\"" LiteralList[node] "\"]"
     }
 }
 
