@@ -14,8 +14,13 @@ function set(s,n,c) {
     return( substr(s,1,n-1) c substr(s,n+length(c)) ) 
 }
 
-function graph(lineArray, firstLine, numLines) {
+function graph(lineArray, firstLine, numLines,       
+id,ids,maxId,nr,field,srcLine,dstLine,dstAddr,lineAddr,lineToAddr,addrToLine,
+arcUpr,arcLwr,arcLen,arcDir,arcIdByUpr,arcIdByLwr,idByLenRank,laneCount,maxLane,
+minLane,i,j,ul,ll,ln,conflict,cul,cll,laneNumById,idByLaneNum,laneStr,idList,
+corner,direction,selfLoop,dashes,arrow) {
     maxId=1
+
 
     for(nr=firstLine; nr<=firstLine+numLines; nr++) {
         split(lineArray[nr], field, " ")
@@ -80,7 +85,7 @@ function graph(lineArray, firstLine, numLines) {
 
     # Print out the asm with jump arcs:
     laneStr=sprintf("%*s", 2*laneCount+2, "") 
-    for(nr=1; nr<NR; nr++) {
+    for(nr=firstLine; nr<firstLine+numLines; nr++) {
         if( nr in arcIdByUpr || nr in arcIdByLwr ) {
             if( nr in arcIdByUpr ) {
                 idList=arcIdByUpr[nr]
@@ -139,6 +144,7 @@ function graph(lineArray, firstLine, numLines) {
 
 BEGIN {
     IGNORECASE=1
+    maxFuncs=1
 }
 NR>3 && NF>4 {
     addr=$1
@@ -147,14 +153,26 @@ NR>3 && NF>4 {
     stride=addr-last
     last=addr
 }
-NF == 3 && $2~/0x[0-9a-f]+/ {
+NF==3 && $2~/0x[0-9a-f]+/ {
     addr=last+stride
     $0 = substr($0, 1, 8) sprintf("/*%04x*/", addr) substr($0, 17)
 }
+NF==1 && $1~/^\.{40,}/ {
+    breaks[maxFuncs]=NR
+    maxFuncs++
+}
+
 {
     line[NR]=$0
 }
 END {
-    graph(line, 1, NR)
+    print maxFuncs
+    firstLine=1
+    for(funcNo=1; funcNo<maxFuncs; funcNo++) {
+        lastLine=breaks[funcNo]
+        print funcNo, firstLine, lastLine
+        graph(line, firstLine, lastLine-firstLine)
+        firstLine=lastLine+1
+    }
 }
 '
