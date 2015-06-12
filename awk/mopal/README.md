@@ -4,7 +4,7 @@ MOPAL
 Introduction
 ------------
 
-MOPAL stands for Matrix-Oriented Pseudo-Assembly Language.
+_MOPAL_ stands for Matrix-Oriented Pseudo-Assembly Language.
 
 The idea is to express a matrix-oriented computation in
 [_GNU Octave_](http://www.gnu.org/software/octave/), as if it were
@@ -29,7 +29,7 @@ and end tags:
 You can have anything you like before the start tag for setup (or
 after the end tag for whatever reason you like).
 
-An _Octave file_ in this form can then be processed by
+An _Octave_ file in this form can then be processed by
 [`mopal2dot`](mopal2dot), which emits a
 [DOT](http://www.graphviz.org/doc/info/lang.html) language dependency
 graph, which is intended to be piped through
@@ -92,7 +92,7 @@ find where it is.”
 **Dashed light grey arrows** also connect variables between groups,
 but, unlike solid dark grey arrows, which connect variables to their
 previous write, these arrows connect variables to the previous _read_
-if any. They are purely informations, indicating a “non-dependency”,
+if any. They are purely informational, indicating a “non-dependency”,
 and their feintness is intended to indicate that.
 
 
