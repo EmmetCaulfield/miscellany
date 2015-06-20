@@ -6,7 +6,7 @@
         : loop              #     
         n                   #     Go on to the next line
         /\(.*\)<\/title>/{  #     If we match the end tag
-            s//\1/          #       Keep stuff up to the start tag
+            s//\1/          #       Keep stuff up to the end tag
             H               #       Append to hold space
             g               #       Fetch hold space to pattern space
             s/\n\+/ /g      #       Replace newlines with spaces
