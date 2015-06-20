@@ -16,7 +16,7 @@ Overview
 
 Languages include:
 
-  * [*AWK*](awk/), the classic _Unix_ utility, by [*A*ho](https://en.wikipedia.org/wiki/Alfred_Aho), [*W*einberger](https://en.wikipedia.org/wiki/Peter_J._Weinberger), and [*K*ernighan](https://en.wikipedia.org/wiki/Brian_Kernighan)
+  * [*AWK*](awk/), the classic _Unix_ utility, by [**A**ho](https://en.wikipedia.org/wiki/Alfred_Aho), [**W**einberger](https://en.wikipedia.org/wiki/Peter_J._Weinberger), and [**K**ernighan](https://en.wikipedia.org/wiki/Brian_Kernighan)
   * [*C*](c/)
   * [*flex*](flex/), the [lexical analyzer generator](http://flex.sourceforge.net/), not the [_Adobe_ thing](http://www.adobe.com/products/flex.html).
   * [*Java*](java/)
