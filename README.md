@@ -16,14 +16,15 @@ Overview
 
 Languages include:
 
-  * [*AWK*](awk/), the classic _Unix_ utility
+  * [*AWK*](awk/), the classic _Unix_ utility, by [*A*ho](https://en.wikipedia.org/wiki/Alfred_Aho), [*W*einberger](https://en.wikipedia.org/wiki/Peter_J._Weinberger), and [*K*ernighan](https://en.wikipedia.org/wiki/Brian_Kernighan)
   * [*C*](c/)
-  * [*flex*](flex/), the lexical analyzer generator, not the _Adobe_ thing.
+  * [*flex*](flex/), the [lexical analyzer generator](http://flex.sourceforge.net/), not the [_Adobe_ thing](http://www.adobe.com/products/flex.html).
   * [*Java*](java/)
   * [*GNU Make*](make/)
   * [*MATLAB*](matlab/) and/or [GNU Octave](http://www.gnu.org/software/octave/)
   * [*Python*](python/)
   * [*R*](R/), the statistics language
+  * [*sed*](sed/), the classic _Unix_ stream editor
   * [*Bash*](shell/), the shell
 
 ### By Topic ###
@@ -40,6 +41,7 @@ Languages include:
 #### Software Examples ####
 
   * [The Bison C++ Example with a C++ Flex Lexer](flex/bison-cxx-example/).
+  * A nice little [sed script](sed/) to extract multi-line tag content.
 
 #### Software Analysis ####
 
