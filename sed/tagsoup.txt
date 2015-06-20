@@ -1,0 +1,18 @@
+<blah>
+  <title>One-Line Title</title>
+  <p>foo</p>
+  <p>bar</p>
+  <title>Two-Line
+Title
+  </title>
+  <p>foo</p>
+  <p>bar</p>
+  <quux>
+    <title>Multi-Line    Title
+
+with
+    Lots
+of
+    Random
+Spaces     </title>
+</blah>
