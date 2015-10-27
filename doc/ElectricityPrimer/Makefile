@@ -1,17 +1,19 @@
-BASENAME  = primer
-HAS_BIB   = no
-HAS_FIGS  = yes
-HAS_GLOSS = no
-FIG_DIR   = figures
-BIB_DIR   = ./bib
-TEXFLAGS  = --output-comment 'Written by Emmet Caulfield, 2015'
-TEXINPUTS = :./lib:.
+BASENAME  := primer
+HAS_BIB   := no
+HAS_FIGS  := yes
+HAS_GLOSS := no
+FIG_DIR   := figures
+BIB_DIR   := ./bib
+PUB_DIR   := ${HOME}/afs/WWW/ENERGY-293C/ElectricityPrimer/
+TEXFLAGS  := --output-comment 'Written by Emmet Caulfield, 2015'
+TEXINPUTS := :./lib:.
 #BIBINPUTS = :$(BIB_DIR)//:.
-ACROREAD  = evince
-PDFS      = $(addsuffix .pdf, $(BASENAME))
-PSFILES   = $(addsuffix .ps,  $(BASENAME))
-TEXFILES  = $(addsuffix .tex, $(BASENAME))
+ACROREAD  := evince
+PDFS      := $(addsuffix .pdf, $(BASENAME))
+PSFILES   := $(addsuffix .ps,  $(BASENAME))
+TEXFILES  := $(addsuffix .tex, $(BASENAME))
 TEXFILES += assumptions.tex first-principles.tex rotational-mechanics.tex
+TEXFILES += ${FIG_DIR}/results.tex
 
 export TEXINPUTS BIBINPUTS
 
@@ -72,5 +74,8 @@ clean:
 
 pristine: clean
 	cd $(FIG_DIR) && ${MAKE} clean
+
+pub: $(PDFS)
+	cp $^ ${PUB_DIR}
 
 .PHONY: clean pristine view pdf default preview figs

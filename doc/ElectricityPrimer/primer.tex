@@ -122,72 +122,10 @@
 
 \include{assumptions}
 %\include{first-principles}
-
-\section{Circuit Diagrams}
-
-Having introduced the zig-zag circuit symbol for a resistor in
-Figure~\ref{fig:ohmslaw}, and before proceeding to talk about
-alternating current, it is helpful to talk a little about
-\term{circuit diagrams} or \term{schematics}.
-
-A circuit diagram depicts circuit elements or components and how they
-are connected to each other.
-
-\subsection{Types of Circuit Diagram}
-
-There are really two kinds of circuit diagram, which are somewhat
-different, they can describe:
-
-\begin{itemize}
-  \item a physical assembly of real-world non-ideal components for assembly/production; and
-  \item a theoretical assembly of ideal components for analysis/simulation.
-\end{itemize}
-
-The example of Figure~\ref{fig:flashlight} shows a ``production''
-schematic for a flashlight: the positive terminal of a 3~\unit{V}
-battery is connected via a latching switch to a lamp, the other
-terminal of which is connected to the chassis. The battery's negative
-terminal is also connected to the chassis, completing the circuit.
-
-Figure~\ref{fig:flashlight} also shows an ``analysis'' schematic for
-the same flashlight --- admittedly an outlandish pedagogical
-contrivance --- but this time the battery is modeled as a 3~\unit{V}
-independent voltage source in series with a resistance, $R_B$,
-representing the internal resistance of the battery. The switch is
-generic (for analysis purposes, we don't care if it latches or not),
-the negative terminal of the battery is connected explicitly to the
-lamp, and that node is connected to ground.
-
-\begin{figure}[H]
-  \centering
-  \begin{subfigure}{\twowide}
-    \centering
-    \begin{circuitikz}
-      \draw (0,0) node[cground] {};
-      \draw (0,0) to [battery,v=$3~\unit{V}$] (0,2);
-      \draw (0,2) to [lspst] (2,2);
-      \draw (2,2) to [lamp] (2,0) node[cground] {};
-    \end{circuitikz}
-    \caption{Production}
-  \end{subfigure}
-  \begin{subfigure}{\twowide}
-    \centering
-    \begin{circuitikz}
-      \draw (0,0) node[ground] {};
-      \draw (0,0) to [V=$3~\unit{V}$] (0,2);
-      \draw (0,2) to [R=$R_\mathrm{B}$] (2,2);
-      \draw (2,2) to [spst] (4,2);
-      \draw (4,2) to [lamp] (4,0);
-      \draw (4,0) to [short] (0,0);
-    \end{circuitikz}
-    \caption{Analysis}
-  \end{subfigure}
-  \caption{Production and Analysis Schematics for a Flashlight}
-  \label{fig:flashlight}
-\end{figure}
-
+\include{circuit-diagrams}
 
 \section{Alternating Current}
+\label{sec:alternating-current}
 
 When we speak of an \term{alternating current}, \term{AC}, we are
 usually referring to a sinusoidally time-varying \emph{voltage}
@@ -286,6 +224,7 @@ related to Fourier series and the Laplace transform.
 
 
 \section{Circuit Elements}
+\label{sec:circuit-elements}
 
 \subsection{Ideal Sources}
 \label{sec:sources}
@@ -853,7 +792,7 @@ by \ruAbsArgI.
 
 
 
-\subsection{AC Power}
+\section{Single-Phase Power}
 
 Because of the phase relationship between current and voltage, AC
 \emph{power} is not as simple as the DC case. Only in the case of a
@@ -1099,9 +1038,9 @@ network's Th\`evenin equivalent series impedance.
 By duality, this applies equally to a Norton equivalent circuit.
 
 
-\subsection{Semiconductors}
+\section{Semiconductors}
 
-\subsubsection{Diode}
+\subsection{Diode}
 
 Semiconductor diodes can be, broadly speaking, divided into
 \term{small signal} and \term{power} types. Small signal diodes come
@@ -1127,7 +1066,7 @@ drop (hundreds of~\unit{mV}).
 \end{figure}
 
 
-\paragraph{Rectifier}
+\subsubsection{Rectifier}
 
 Rectifier diodes are power diodes available in current ratings from
 perhaps 500~\unit{mA} to 10~\unit{kA}.
@@ -1154,23 +1093,32 @@ Many diodes colloquially called ``Zener diodes'' are technically
 breakdown effects: the Zener effect and the avalanche effect.
 
 
-\subsubsection{Bipolar Junction Transistor (BJT)}
+\subsection{Bipolar Junction Transistor (BJT)}
 
 
 
-\subsubsection{Field Effect Transistor (FET)}
+\subsection{Field Effect Transistor (FET)}
 
 
 \section{Electric Machines}
 
 \subsection{Motor}
 
-
 \subsection{Generator}
 
+A \emph{generator} is a device that converts mechanical rotational
+power into electrical energy.
+
+The mechanical-to-electrical conversion efficiency of a large
+generator typically exceeds 98\%.
+
+There is a saying in electrical engineering that ``all generators are
+AC generators''.
 
 
-\clearpage
+
+
+
 \section{Rotational Kinetic Energy}
 
 The blade assembly of a wind turbine can be viewed as a device that
@@ -1199,52 +1147,10 @@ derivative of the RKE:
 P_{rot} = \frac{I}{2}\deedee{\omega^2}{t} = I\omega
 \end{equation}
 
-\section{Generator}
 
-A \emph{generator} is a device that converts rotational energy (or
-power) into electrical energy (or power).
-
-The conversion efficiency of a large generator can be as high as 97\%.
-
-There is a saying in electrical engineering that ``all generators are AC generators''.
-
-
-
+\clearpage
 \appendix
 
-\subsection{Rotational Mechanics}
-
-Table~\ref{tbl:rotquant} summarizes the rotational analogues of the
-more familiar translational quantities.
-
-\begin{table}[H]
-  \centering
-  \begin{tabular}{lccccl} \toprule
-    \multicolumn{3}{c}{Linear Mechanics} & \multicolumn{3}{c}{Rotational Mechanics} \\ \cmidrule(r){1-3} \cmidrule(l){4-6}
-  Name           & Unit                & Symbol                & Symbol                        & Unit                  & Name                        \\ \midrule
-  Displacement   & \unit{m}            & $x$                   & $\theta$                      & \unit{rad}            & Angular Displacement        \\
-  Mass           & \unit{kg}           & $m$                   & $I$                           & \unit{kg\cdot m^2}    & Moment of inertia           \\
-  Velocity       & \unit{m}{s}         & $v = \deedee{x}{t}$   & $\omega = \deedee{\theta}{t}$ & \unit{rad}{s}         & Angular Velocity            \\
-  Momentum       & \unit{kg\cdot m}{s} & $p = mv$              & $L = I\omega$                 & \unit{kg\cdot m^2}{s} & Angular Momentum            \\
-  Acceleration   & \unit{m}{s^2}       & $a = \deedee{v}{t}$   & $\alpha = \deedee{\omega}{t}$ & \unit{rad}{s^2}       & Angular Acceleration        \\
-  Force          & \unit{N}            & $F = ma$              & $T = I\alpha$                 & \unit{N\cdot m}       & Torque                      \\
-  Work           & \unit{J}            & $W = F\dee{x}$        & $W = T \dee{\theta}$          & \unit{J}              & (Rotational) Work           \\
-  Kinetic Energy & \unit{J}            & $E = \frac{1}{2}mv^2$ & $E = \frac{1}{2}I\omega^2$    & \unit{J}              & (Rotational) Kinetic Energy \\
-  Power          & \unit{W}            & $P = Fv$              & $P = T\omega$                 & \unit{W}              & (Rotational) Power          \\ \bottomrule
-  \end{tabular}
-  \caption{Linear Quantities and Their Rotational Analogs}
-  \label{tbl:rotquant}
-\end{table}
-
-By way of example, \term{moment of inertia} is the analog of {mass} in
-translational mechanics. In the same way as the mass, $m$, (in
-\unit{kg}) can be viewed as the property of an object that determines
-the force, $F$, (in \unit{N}) required for a particular \emph{linear}
-acceleration, $a$, (in \unit{m}{s^2}) --- $F=ma \implies
-m=\frac{F}{a}$ --- moment of inertia, I, determines the \emph{torque},
-$T$, (in \unit{N\cdot m}) required for a particular \emph{angular}
-acceleration (in \unit{rad}{s^2}): $\tau=I\alpha \implies
-I=\frac{\tau}{\alpha}$.
-
+\input{rotational-mechanics}
 
 \end{document}
