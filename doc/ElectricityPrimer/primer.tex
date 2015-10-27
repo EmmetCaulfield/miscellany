@@ -109,24 +109,9 @@
 \newcommand{\fixme}[1]{{\color{red}{\bf FIXME:} #1}}
 \newcommand\citeme{{\color{red}{\bf??}}}
 
-\newcommand*\gVdc{9~\unit{V}\xspace}
-\newcommand*\gVm{120~\unit{V}\xspace}
-\newcommand*\gVp{169.7~\unit{V}\xspace}
-\newcommand*\gVpp{339.4~\unit{V}\xspace}
-\newcommand*\gf{60~\unit{Hz}\xspace}
-\newcommand*\gR{2~\unit{\Omega}\xspace}
-\newcommand*\gL{4~\unit{mH}\xspace}
-\newcommand*\gC{1~\unit{\mu F}\xspace}
-\newcommand*\gXl{1.508~\unit{\Omega}\xspace}
-\newcommand*\gXc{2653~\unit{\Omega}\xspace}
-\newcommand*\gZ{2+\mathrm{j}1.508~\unit{\Omega}\xspace}
-\newcommand*\gArgZ{-37.02\deg\xspace}
-\newcommand*\gabsArgZ{37.02\deg\xspace}
-\newcommand*\gModZ{2.505~\unit{\Omega}\xspace}
-\newcommand*\giCm{45.24~\unit{mA}\xspace}
-\newcommand*\giLm{47.90~\unit{A}\xspace}
-\newcommand*\giLp{67.74~\unit{A}\xspace}
-\newcommand*\gPF{0.7985~lagging\xspace}
+%% Results/setup values from R:
+\input{figures/results.tex}
+
 
 \author{\docauthor}
 \title{\doctitle}
@@ -206,10 +191,10 @@ lamp, and that node is connected to ground.
 
 When we speak of an \term{alternating current}, \term{AC}, we are
 usually referring to a sinusoidally time-varying \emph{voltage}
-(potential difference). The US domestic standard service \gVp at
-\gf AC supply can be described by:
+(potential difference). The nominal domestic AC service voltage, \ruVm at
+\ruF, can be described by:
 \[
-v(t) = 120\sqrt{2}\cos(60\cdot 2\pi t+\phi)\qquad\bunit{V}
+v(t) = \rnVm\sqrt{2}\cos(\rnF\cdot 2\pi t+\phi)\qquad\bunit{V}
 \]
 
 \ldots where $t$ is time and $\phi$ is some arbitrary phase shift that
@@ -220,14 +205,14 @@ difference varies with time as shown in Figure~\ref{fig:ac}.
 \begin{figure}[ht]
   \centering
   \includegraphics[width=\onewide]{ac}
-  \caption{US Domestic Supply --- \gVp at \gf AC}
+  \caption{Domestic Mains Service --- \ruVm at \ruF AC}
   \label{fig:ac}
 \end{figure}
 
-\gVm is the \term{root mean squared} (\term{RMS}) voltage. The
-mathematically convenient \term{peak} value is $\sqrt{2}$ times the
-RMS voltage, \gVp, and half the \term{peak-to-peak} value, which is about
-\gVpp in this case.
+\ruVm is the \term{root mean squared} (\term{RMS}) voltage. The
+mathematically convenient \term{peak} value, \ruVp, is $\sqrt{2}$ times the
+RMS voltage and half the \term{peak-to-peak} value, which is about
+\ruVpp in this case.
 \[
 V_\mathrm{pp} = 2 V_\mathrm{p}
 \]
@@ -255,8 +240,8 @@ For a common/fixed frequency, $\omega$, this representation can be
 plotted as an arrow on an Argand diagram showing the magnitude and
 phase of the signal: $v(t)$ can be written $V_\mathrm{p}\angle\phi$,
 where the frequency is implied or understood from context. In our
-case, this will almost always be \gf corresponding to the US
-mains supply.
+case, this will almost always be \ruF corresponding to the mains
+supply.
 
 This representation, called a \term{phasor}, is convenient because
 ordinary complex arithmetic yields correct results. Voltages,
@@ -346,9 +331,9 @@ context.
 \begin{figure}[ht]
   \centering
   \begin{circuitikz}
-    \draw (0,0) to [sV=$120~\unit{V}$] (0,2);
+    \draw (0,0) to [sV=$\ruVm$] (0,2);
   \end{circuitikz}
-  \caption{A 120~\unit{V} Sinusoidal Voltage Source}
+  \caption{A \ruVm Sinusoidal Voltage Source}
   \label{fig:sinsrc}
 \end{figure}
 
@@ -510,18 +495,18 @@ E = \frac{1}{2}CV^2\qquad\bunit{J}
 \paragraph{Transient Behavior}
 \label{sec:rcstep}
 
-Suppose a completely discharged 1~\unit{\mu F} ideal capacitor is
-connected at $t=0$ (by throwing a switch) to a \gVdc battery having an
-internal resistance of \gR as shown in Figure~\ref{fig:rcseries}.
+Suppose a completely discharged \ruC ideal capacitor is connected at
+$t=0$ (by throwing a switch) to a \ruVdc battery having an internal
+resistance of \ruR as shown in Figure~\ref{fig:rcseries}.
 
 \begin{figure}[H]
   \centering
   \begin{circuitikz}
     \draw (0,0) node[ground] {};
-    \draw (0,0) to [V=$\gVdc$] (0,2);
-    \draw (0,2) to [R=$\gR$, v=$v_\mathrm{R}$] (2,2);
+    \draw (0,0) to [V=$\ruVdc$] (0,2);
+    \draw (0,2) to [R=$\ruR$, v=$v_\mathrm{R}$] (2,2);
     \draw (2,2) to [spst] (4,2);
-    \draw (4,2) to [C=$\gC$, v=$v_\mathrm{C}$] (4,0);
+    \draw (4,2) to [C=$\ruC$, v=$v_\mathrm{C}$] (4,0);
     \draw (4,0) to [short] (0,0);
   \end{circuitikz}
   \caption{A Capacitor Connected to a Battery}
@@ -531,7 +516,7 @@ internal resistance of \gR as shown in Figure~\ref{fig:rcseries}.
 By Kirchoff's Voltage Law (the sum of the voltages around a loop is zero),
 \begin{equation}
 \label{eqn:rckvl}
-v_\mathrm{R} + v_\mathrm{C} = V_\mathrm{B}\quad \left(\gVdc\right)
+v_\mathrm{R} + v_\mathrm{C} = V_\mathrm{B}\quad \left(\ruVdc\right)
 \end{equation}
 
 There is only one possible current path, so:
@@ -566,7 +551,7 @@ And, by~\eqref{eqn:rckvl}:
 v_\mathrm{C}(t) = V_\mathrm{B}\left(1 - e^{-\frac{t}{RC}}\right)
 \]
 Plotting with the values for $V_\mathrm{B}$, $R$, and $C$ given above
-(\gVdc, \gR, and \gC, respectively) yields Figure~\ref{fig:rcstep}.
+(\ruVdc, \ruR, and \ruC, respectively) yields Figure~\ref{fig:rcstep}.
 
 \begin{figure}[ht]
   \centering
@@ -578,7 +563,7 @@ Plotting with the values for $V_\mathrm{B}$, $R$, and $C$ given above
 The value $RC$ is called the \term{time constant} and has units of
 seconds\footnote{A farad is a second per ohm.}:
 \[
-\tau = RC = \gR\times\gC = 2\times 10^{-6}\bunit{s}
+\tau = RC = \ruR\times\ruC = \ruTauC
 \]
 
 
@@ -613,9 +598,9 @@ quasi-static conditions (AC voltage applied for a long time), any
 power stored during one part of a cycle is returned during another
 part of the cycle.
 
-If we were to apply the US standard domestic mains voltage to our
-\gC capacitor, we would see the voltage and current shown
-in Figure~\ref{fig:capac}. Note that the current scale is
+If we were to apply the nominal domestic service voltage to our \ruC
+capacitor, we would see the voltage and current shown in
+Figure~\ref{fig:capac}. Note that the current scale is
 \emph{milliamps}.
 
 \begin{figure}
@@ -626,7 +611,7 @@ in Figure~\ref{fig:capac}. Note that the current scale is
 \end{figure}
 
 The RMS current in Figure~\ref{fig:capac} is
-$\approx\giCm$. In time, the current leads voltage by 90\deg.
+$\approx\ruImC$. In time, the current leads voltage by 90\deg.
 
 
 \paragraph{Colloquialisms}
@@ -687,18 +672,18 @@ E = \frac{1}{2} L I^2\qquad\bunit{J}
 
 \paragraph{Transient Behavior}
 
-Suppose a completely discharged \gL ideal inductor is connected at
-$t=0$ (by throwing a switch) to a \gVdc battery having an internal
-resistance of \gR as shown in Figure~\ref{fig:rlseries}.
+Suppose a completely discharged \ruL ideal inductor is connected at
+$t=0$ (by throwing a switch) to a \ruVdc battery having an internal
+resistance of \ruR as shown in Figure~\ref{fig:rlseries}.
 
 \begin{figure}[H]
   \centering
   \begin{circuitikz}
     \draw (0,0) node[ground] {};
-    \draw (0,0) to [V=$\gVdc$] (0,2);
-    \draw (0,2) to [R=$\gR$, v=$v_\mathrm{R}$] (2,2);
+    \draw (0,0) to [V=$\ruVdc$] (0,2);
+    \draw (0,2) to [R=$\ruR$, v=$v_\mathrm{R}$] (2,2);
     \draw (2,2) to [spst] (4,2);
-    \draw (4,2) to [L=$\gL$, v=$v_\mathrm{L}$] (4,0);
+    \draw (4,2) to [L=$\ruL$, v=$v_\mathrm{L}$] (4,0);
     \draw (4,0) to [short] (0,0);
   \end{circuitikz}
   \caption{An Inductor Connected to a Battery}
@@ -720,7 +705,7 @@ v_\mathrm{L}(t) = V_\mathrm{B}e^{-\frac{R}{L}t}
 \]
 
 Plotting with the values for $V_\mathrm{B}$, $R$, and $L$ given above
-(\gVdc, \gR, and \gL, respectively) yields Figure~\ref{fig:rlstep}.
+(\ruVdc, \ruR, and \ruL, respectively) yields Figure~\ref{fig:rlstep}.
 
 \begin{figure}[ht]
   \centering
@@ -731,7 +716,7 @@ Plotting with the values for $V_\mathrm{B}$, $R$, and $L$ given above
 
 In this case, the time constant is\footnote{A henry is an ohm-second.}:
 \[
-\tau = \frac{L}{R} = \frac{\gL}{\gR} = 2\times10^{-3}\quad\bunit{s}
+\tau = \frac{L}{R} = \frac{\ruL}{\ruR} = \ruTauL
 \]
 
 
@@ -766,11 +751,11 @@ quasi-static conditions (AC voltage applied for a long time), any
 power stored during one part of a cycle is returned during another
 part of the cycle.
 
-If we were to apply the US standard domestic mains voltage to our
-\gL inductor, we would see the voltage and current shown in
-Figure~\ref{fig:indac}. Note that the current scale is \emph{amperes}
-(to handle the \giLp peak current, this would have to be one
-hefty inductor).
+If we were to apply the nominal domestic mains service voltage to our
+\ruL inductor, we would see the voltage and current shown in
+Figure~\ref{fig:indac}. Note that the current scale is
+\emph{amperes}\footnote{And to handle the $\approx\ruIpL$ peak
+  current, this would have to be one hefty inductor!}.
 
 \begin{figure}
   \centering
@@ -779,7 +764,7 @@ hefty inductor).
   \label{fig:indac}
 \end{figure}
 
-The RMS current in Figure~\ref{fig:indac} is $\approx\giLm$. In time,
+The RMS current in Figure~\ref{fig:indac} is $\approx\ruImL$. In time,
 voltage leads current by 90\deg in an inductor.
 
 \paragraph{Colloquialisms}
@@ -817,7 +802,7 @@ If the reactive component of impedance is \emph{positive}, $\Im(Z)>0$, the imped
 If the reactive component of impedance is \emph{zero}, $\Im(Z)=0$, the impedance is \term{purely resistive}.
 
 Suppose we consider a series RL circuit --- similar to that considered
-before --- consisting of a \gR resistor and a \gL inductor in series
+before --- consisting of a \ruR resistor and a \ruL inductor in series
 as shown in Figure~\ref{fig:indload}.
 
 \begin{figure}[H]
@@ -826,21 +811,21 @@ as shown in Figure~\ref{fig:indload}.
     \draw (0,0) node[ground] {};
     \draw (0,0) to [sV=$v$] (0,4);
     \draw (0,4) to [short, i=$i$] (3,4);
-    \draw (3,4) to [R=$\gR$] (3,2);
-    \draw (3,2) to [L=$\gL$] (3,0);
+    \draw (3,4) to [R=$\ruR$] (3,2);
+    \draw (3,2) to [L=$\ruL$] (3,0);
     \draw (3,0) to [short] (0,0);
   \end{circuitikz}
   \caption{An Inductive Load Connected to an AC Voltage Source}
   \label{fig:indload}
 \end{figure}
 
-
-Its impedance at \gf is:
+%% ASSUMPTION: \rnL is in mH
+Its impedance at \ruF is:
 \[
-Z = 2 + \mathrm{j} \cdot 120\pi \cdot 4\times 10^{-3} \approx \gZ
+Z = \rnR + \mathrm{j} \cdot \rnVm\pi \cdot \rnL\times 10^{-3} \approx \ruZ
 \]
 
-If we applied the US domestic mains --- \gVm at \gf --- to this
+If we applied the US domestic mains --- \ruVm at \ruF --- to this
 impedance, the current would be as depicted in Figure~\ref{fig:srlac}.
 
 \begin{figure}
@@ -857,11 +842,11 @@ The exact relationship can be computed surprisingly easily: we just
 apply Ohm's Law using phasors:
 \begin{equation}
 \label{eqn:acohms}
-i = \frac{\abs{V_\mathrm{p}}\angle0}{Z} = \frac{(120\sqrt{2})\angle0}{2+\mathrm{j}1.508} \approx \frac{169.7\angle0}{2.505\angle37.02\deg} = 67.74\angle{-37.02}
+i = \frac{\abs{V_\mathrm{p}}\angle0}{Z} = \frac{(\rnVm\sqrt{2})\angle0}{\rnZ} \approx \frac{\rnVp\angle0}{\rnModZ\angle\rnArgZ\deg} = \rnModI\angle{\rnArgI}
 \end{equation}
-This tells us that the current peaks at \giLp and lags the voltage by
-\gabsArgZ. Equivalently, we can say that \emph{voltage leads current}
-by \gabsArgZ.
+This tells us that the current peaks at \ruModI and lags the voltage by
+\ruAbsArgI. Equivalently, we can say that \emph{voltage leads current}
+by \ruAbsArgI.
 
 
 \subsubsection{Transformer}
@@ -880,7 +865,7 @@ current, meaningful.
   \centering
   \begin{circuitikz}
     \draw (0,0) node[ground] {};
-    \draw (0,0) to [sV=$\gVm$] (0,2);
+    \draw (0,0) to [sV=$\ruVm$] (0,2);
     \draw (0,2) to [short] (2,2);
     \draw (2,2) to [generic=$Z$] (2,0);
     \draw (2,0) to [short] (0,0);
@@ -953,9 +938,9 @@ is capacitive.
 
 Looking at Figure~\ref{fig:pwrphasor} again, the current phasor (red)
 appears clockwise of the voltage phasor (blue). The angle? We
-calculated that in Equation~\ref{eqn:acohms}: \gArgZ. The angle
+calculated that in Equation~\ref{eqn:acohms}: \ruArgZ. The angle
 subtended by the apparent power, $S$, to the real axis is the same, so
-the power factor in this case is \gPF.
+the power factor in this case is \rnPF.
 
 Although the usual definition of power factor doesn't admit the
 possibility of negative power factors, they have been used
@@ -967,9 +952,9 @@ generators''.
 
 Note that, in general, although we usually shorten ``ampere'' to
 ``amp'' colloquially, this is done less often with units that
-``compound'' the ampere with other units, such as ampere-second (aka
-coulomb, $1\unit{C}=1\unit{A\cdot s}$, volt-ampere (\unit{VA}), or
-ampere-hour (\unit{Ah}).
+``compound'' the ampere with other units, such as
+ampere-second\footnote{aka coulomb, $1\unit{C}=1\unit{A\cdot s}$},
+volt-ampere (\unit{VA}), or ampere-hour (\unit{Ah}).
 
 
 \subsection{Lagging and Leading}
@@ -1046,26 +1031,41 @@ Mercifully and sensibly, power factor consistently uses voltage as the reference
 
 The current phasor for a lagging power factor points down, but the
 power phasor for a lagging power factor points up. An inductive
-impedance, though not a phasor, can be plotted on the same Argand
-diagram and points up.
+impedance, though not a phasor, can be (and often is) plotted on the
+same Argand diagram and points up.
 
 The current phasor for a leading power factor points up, but the power
 phasor for a leading power factor points down. A capacitive impedance
 points down.
 
 Though it makes sense when you work through it, it can be confusing
-keeping all of this ``straight'' in your head.
+keeping all of this ``straight'' in your head. The two key things to
+remember are: 
+\begin{itemize}
+  \item that the definition of apparent power uses \emph{the complex
+  conjugate} of the current, so the apparent power phasor will
+    \emph{always} lie on the mirror-image of the current phasor.
+  \item that the current is the voltage \emph{divided by} the complex
+    impedance, so the current phasor will \emph{always} lie on the
+    mirror-image of the complex impedance plotted on the same Argand
+    diagram.
+\end{itemize}
 
+Given these two facts, it should be no surprise that the complex
+impedance points the same way as the apparent power phasor, as it lies
+on the mirror-image of a mirror-image.
 
 \section{Essential Principles}
 
 \subsection{Kirchoff's Voltage Law}
 
-The sum of the potential differences around a closed loop is zero (just conservation of potential energy).
+The sum of the potential differences around a closed loop is zero
+(just conservation of potential energy).
 
 \subsection{Kirchoff's Current Law}
 
-The sum of the currents into a node is zero (just conservation of mass: where else could electrons go?)
+The sum of the currents into a node is zero (just conservation of
+mass: where else could electrons go?)
 
 \subsection{Th\'evenin's Theorem}
 
@@ -1149,9 +1149,9 @@ breakdown voltage\footnote{Colloquially refereed to as ``the knee''.}
 is consistent, non-destructive, and nearly constant with
 current. Zener diodes are typically used as voltage references.
 
-Many diodes termed ``Zener diodes'' are technically \term{avalanche
-  diodes} are there are two subtly different reverse breakdown
-effects: the Zener effect and the avalanche effect.
+Many diodes colloquially called ``Zener diodes'' are technically
+\term{avalanche diodes} as there are two subtly different reverse
+breakdown effects: the Zener effect and the avalanche effect.
 
 
 \subsubsection{Bipolar Junction Transistor (BJT)}

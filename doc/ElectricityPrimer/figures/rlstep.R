@@ -1,31 +1,16 @@
 ## Common setup:
 source('header.R')
 
-## Resistance:
-R <- 2
-
-## Capacitance:
-L <- 5e-3
-
 ## Time constant:
 tau <- L/R
-
-## DC supply voltage:
-Vcc <- 9
-
-## Number of periods:
-n <- 6
-
-## Point to draw per period:
-p <- 100
 
 ## Time points:
 t <- seq(0, n*tau, tau/p)
 
 
 ## Conjure up a data frame for plotting:
-df    <- data.frame(t=t, Vr=Vcc*(1-exp(-t/tau)))
-df$Vl <- Vcc-df$Vr
+df    <- data.frame(t=t, Vr=Vdc*(1-exp(-t/tau)))
+df$Vl <- Vdc-df$Vr
 df$i  <- df$Vr/R
 dm    <- melt(df, id.vars='t')
 

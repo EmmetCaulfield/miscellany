@@ -5,7 +5,7 @@ RSRC+=pwrphasor.R
 PDFS:=$(SVGS:.svg=.pdf)
 PDFS+=$(RSRC:.R=.pdf)
 
-default: $(PDFS)
+default: $(PDFS) results.tex
 
 %.pdf: %.eps
 	epstopdf $<
@@ -13,6 +13,11 @@ default: $(PDFS)
 # R
 %.pdf: %.R header.R
 	cat $< | R --no-save -q
+
+#
+%.tex: %.R header.R
+	rm -f $@
+	R CMD BATCH --vanilla --no-save $<
 
 # Inkscape / SVG
 %.eps: %.svg
@@ -30,6 +35,6 @@ default: $(PDFS)
 	inkscape -e $@ -d 300 $<
 
 clean:
-	rm -f *.pdf $(RSRC:.R=.svg) *~
+	rm -f *.pdf $(RSRC:.R=.svg) results.tex .RData *.Rout *~
 
 .PHONY: clean default

@@ -11,6 +11,9 @@ ggplotColors <- function(n) {
     hcl(h=hues, l=65, c=100)[1:n]
 }
 
+## DC value:
+Vdc <- 9
+
 ## Frequency (Hz):
 f <- 60
 
