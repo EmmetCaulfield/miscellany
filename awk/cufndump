@@ -157,7 +157,7 @@ NF==3 && $2~/0x[0-9a-f]+/ {
     addr=last+stride
     $0 = substr($0, 1, 8) sprintf("/*%04x*/", addr) substr($0, 17)
 }
-NF==1 && $1~/^\.{40,}/ {
+NF==1 && $1~/^\.{24,}/ {
     breaks[maxFuncs]=NR
     maxFuncs++
 }
@@ -171,6 +171,7 @@ END {
         lastLine=breaks[funcNo]
         graph(line, firstLine, lastLine-firstLine)
         firstLine=lastLine+1
+        print "----------------------------------------------------------------------------------------------------"
     }
 }
 '
