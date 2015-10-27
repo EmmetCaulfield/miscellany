@@ -13,7 +13,7 @@ PDFS      := $(addsuffix .pdf, $(BASENAME))
 PSFILES   := $(addsuffix .ps,  $(BASENAME))
 TEXFILES  := $(addsuffix .tex, $(BASENAME))
 TEXFILES += assumptions.tex first-principles.tex rotational-mechanics.tex
-TEXFILES += ${FIG_DIR}/results.tex
+TEXFILES += circuit-diagrams.tex ${FIG_DIR}/results.tex
 
 export TEXINPUTS BIBINPUTS
 
