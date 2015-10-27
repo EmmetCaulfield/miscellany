@@ -29,20 +29,20 @@ tex('Vp',      Vp,                  'V'      )
 tex('Vpp',     2*Vp,                'V'      )
 tex('F',       f,                   'Hz'     )
 tex('R',       R,                   '\\Omega')
-tex('L',       L*1000,              'mH'     )
-tex('C',       C*1e6,               '\\mu F' )
+tex('L',       L*milli,             'mH'     )
+tex('C',       C*micro,             '\\mu F' )
 tex('Xl',      Xl,                  '\\Omega')
 tex('Xc',      Xc,                  '\\Omega')
 tex('Z',       Zl,                  '\\Omega')
 
 ## Current in pure inductance/capacitance:
-tex('ImC',     (Vm/Xc)*1000,        'mA'     )
+tex('ImC',     (Vm/Xc)*milli,       'mA'     )
 tex('ImL',     Vm/Xl,               'A'      )
 tex('IpL',     Vp/Xl,               'A'      )
 
 ## Time-constants for series RC and RL circuit step responses:
-tex('TauC',    1e6*R*C,             '\\mu s' )
-tex('TauL',    1000*L/R,            'ms'     )
+tex('TauC',    (R*C)*micro,         '\\mu s' )
+tex('TauL',    (L/R)*milli,            'ms'     )
 
 ## Series RL circuit AC response:
 ## Impedance:
