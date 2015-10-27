@@ -1,0 +1,237 @@
+% Various short-cuts I've been using sporadically for 20 years.
+
+% These are needed for some of the symbols used herein:
+\RequirePackage{amsmath}
+\RequirePackage{xspace}
+
+% Pretty well always want to make these sane:
+\renewcommand{\tt}{\ttfamily}
+\renewcommand{\sc}{\scfamily}
+\renewcommand{\it}{\itshape}
+\renewcommand{\bf}{\bfseries}
+
+% Define a macro for units
+%\makeatletter%
+\def\unit#1{\def\tempa{#1}\futurelet\next\unit@i}% Save first argument
+\def\unit@i{\ifx\next\bgroup\expandafter\unit@ii\else\expandafter\unit@end\fi}%Check brace
+\def\unit@ii#1{\ensuremath{\mathrm{\frac{\tempa}{#1}}}}%Two args
+\def\unit@end{\ensuremath{\mathrm{\tempa}}}%Single args
+%\makeatother
+
+% Units with square brackets around them:
+%\makeatletter%
+\def\bunit#1{\def\tempa{#1}\futurelet\next\bunit@i}% Save first argument
+\def\bunit@i{\ifx\next\bgroup\expandafter\bunit@ii\else\expandafter\bunit@end\fi}%Check brace
+\def\bunit@ii#1{\ensuremath{\left[\mathrm{\frac{\tempa}{#1}}\right]}}%Two args
+\def\bunit@end{\ensuremath{[\mathrm{\tempa}]}}%Single args
+%\makeatother
+
+% Units with parentheses around them:
+%\makeatletter%
+\def\punit#1{\def\tempa{#1}\futurelet\next\punit@i}% Save first argument
+\def\punit@i{\ifx\next\bgroup\expandafter\punit@ii\else\expandafter\punit@end\fi}%Check brace
+\def\punit@ii#1{\ensuremath{\left(\mathrm{\frac{\tempa}{#1}}\right)}}%Two args
+\def\punit@end{\ensuremath{(\mathrm{\tempa})}}%Single args
+%\makeatother
+
+% Define a macro for partial differential equations:
+%\makeatletter%
+\def\deldel#1{\def\tempa{#1}\futurelet\next\deldel@i}% Save first argument
+\def\deldel@i{\ifx\next\bgroup\expandafter\deldel@ii\else\expandafter\deldel@end\fi}%Check brace
+\def\deldel@ii#1{\ensuremath{\frac{\partial\tempa}{\partial #1}}}%Two args
+\def\deldel@end{\ensuremath{\frac{\partial}{\partial\tempa}}}%Single args
+%\makeatother
+
+% Define a macro for ordinary derivatives:
+%\makeatletter%
+\def\deedee#1{\def\tempa{#1}\futurelet\next\deedee@i}% Save first argument
+\def\deedee@i{\ifx\next\bgroup\expandafter\deedee@ii\else\expandafter\deedee@end\fi}%Check brace
+\def\deedee@ii#1{\ensuremath{\frac{\mathrm{d}\tempa}{\mathrm{d} #1}}}%Two args
+\def\deedee@end{\ensuremath{\frac{\mathrm{d}}{\mathrm{d}\tempa}}}%Single args
+%\makeatother
+
+% Define a macro for \mathrm{d}:
+\def\dee{\ensuremath\mathrm{d}}
+
+% Grad, div, curl
+\def\grad{\ensuremath{\nabla}}
+\def\div{\ensuremath{\nabla\cdot}}
+\def\cross{\times}
+\def\curl{\ensuremath{\nabla\cross}}
+
+% Real and imaginary parts:
+\renewcommand*{\Re}{\ensuremath{\mathsf{Re}}}
+\renewcommand*{\Im}{\ensuremath{\mathsf{Im}}}
+
+
+% Degree symbol
+\def\deg{\ensuremath{^\circ}\xspace}
+
+% Algorithmic comment
+\newcommand\alcom{\ensuremath\blacktriangleright}
+\newcommand\assign{\ensuremath\leftarrow}
+
+% Shorthands for oft-used symbols
+\newcommand\tsup[1]{\textsuperscript{#1}}
+\newcommand\tm{\textsuperscript{\texttrademark}}
+\newcommand\rtm{\textsuperscript{\textregistered}}
+\newcommand\us{\textunderscore}
+\newcommand\bs{\textbackslash}
+\newcommand\tat{\textasciitilde}
+
+% Add a style for ``Editorial Comment'' for the drafts.
+\newcommand*{\ednote}[1]{\marginpar{\scriptsize{#1}}}
+
+% Terminology:
+\newcommand*\term[1]{\emph{#1}\index{#1}}
+% Alternative terminology:
+\newcommand*\alt[1]{{\sffamily #1}}
+
+\newcommand*\api[1]{\textsc{#1}}                % API
+\newcommand*\code[1]{\texttt{#1}}		% Code
+\newcommand*\var[1]{\code{#1}}			% Variable
+\newcommand*\cns[1]{\ifmmode\mathrm{#1}\else\code{#1}\fi} % Constant
+\newcommand*\fn[1]{\code{#1()}}			% Function
+\newcommand*\op[1]{\code{#1()}}			% Operator
+\newcommand*\ifc[1]{\code{#1}}			% Interface
+\newcommand*\cls[1]{\code{#1}}			% Class
+\newcommand*\obj[1]{\code{#1}}			% Object
+\newcommand*\msg[1]{\code{#1}}			% Message
+\newcommand*\mth[1]{\code{#1}}			% Method
+\newcommand*\kwd[1]{\code{#1}}			% Keyword
+\newcommand*\pkg[1]{\code{#1}}			% Package
+\newcommand*\pat[1]{\code{#1}}                  % Pattern (RE)
+\newcommand*\att[1]{\ifmmode\mathrm{#1}\else\code{#1}\fi} % Attribute
+\newcommand*\mel[1]{\code{#1}}			% Markup Element
+\newcommand*\reg[1]{\code{#1}}                  % Register
+
+
+\newcommand*{\host}[1]{\texttt{#1}\index{#1}}	% Hostname
+\newcommand*{\file}[1]{\texttt{#1}\index{#1}}	% Filename
+\newcommand*{\sh}[1]{\texttt{\$ #1}}		% Shell prompt
+\newcommand*{\ksh}[1]{\texttt{ksh\$ #1}}	% Korn Shell prompt
+\newcommand*{\bash}[1]{\texttt{bash\$ #1}}	% Bash prompt
+\newcommand*{\csh}[1]{\texttt{csh\% #1}}	% Csh prompt
+\newcommand*{\str}{\texttt}			% String?
+\newcommand*{\opt}{\texttt}			% Option
+
+
+% A Math-mode quoted string:
+\newcommand*{\mstr}[1]{``\mathrm{#1}"}
+% A mathematical set:
+\newcommand\set[1]{\ensuremath{\{#1\}}}
+
+% Shell-related stuff:
+\newcommand*{\rshell}[1]{\texttt{\# #1}}	% Root shell
+\newcommand*{\acri}{\textbf}			% Acronym initial
+\newcommand*{\proto}{\texttt}			% Prototype
+
+\newcommand*{\bltin}[1]{\texttt{#1}\index{#1}}		% Shell builtin
+\newcommand*{\shop}[1]{\texttt{\textbf{#1}}\index{#1}}	% Shell operator
+\newcommand*{\shvar}[1]{\texttt{#1}\index{#1}}		% Shell variable
+\newcommand*{\shkey}[1]{\texttt{#1}\index{#1}}		% ?
+
+% Commands, programs, etc.
+\newcommand*{\cmd}[1]{\texttt{#1}\index{#1}}	% Command
+\newcommand*{\lib}[1]{\texttt{\itshape{#1}}\index{#1}}	% Library
+\newcommand*{\prg}[1]{{\itshape #1}\index{#1}}          % Program
+
+% Programming Languages
+\newcommand*\pgl[1]{\textit{#1}\index{#1!programming language}}
+\newcommand*\C{\pgl{C}\xspace}				% C
+\newcommand*\Cpp{\pgl{C++}\xspace}			% C++
+\newcommand*\java{\pgl{Java}\xspace}			% Java
+\newcommand*\matlab{\pgl{Matlab}\xspace}
+\newcommand*\fortran{\pgl{Fortran}\xspace}
+
+% Operating Systems
+\newcommand*{\os}[1]{\textsc{#1}\index{#1}}
+\newcommand*{\linux}{\os{Linux}\rtm}
+\newcommand*{\unix}{\os{Unix}\rtm\xspace}
+\newcommand*\ms[1]{\textit{Microsoft #1}\rtm}
+\newcommand*{\windows}{\ms{Windows}}
+\newcommand*{\posix}{\os{Posix}\rtm}
+
+% Architectures:
+%\newcommand*\lxxxvi{{\it x86}\xspace}
+
+
+% Organisations, works (books, art, sculpture, etc.)
+\newcommand*{\wrk}[1]{``\emph{#1}''}            % Work
+\newcommand*{\std}[1]{\emph{#1}\index{#1}\index{standard!#1}}
+\newcommand*{\prd}[1]{\emph{#1}\index{#1}}      % Product
+\newcommand*{\org}[1]{\emph{#1}\index{#1}}	% Organisation
+\newcommand*{\com}[1]{\emph{#1}\index{#1}}	% Company
+\newcommand*{\X}{\emph{X}\index{X-Window System}}
+
+% Keys
+\newcommand*{\key}[1]{\texttt{#1}}
+\newcommand*{\altk}[1]{\key{\textasciitilde{}#1}}
+\newcommand*{\ctrl}[1]{\key{\textasciicircum{}#1}}
+\newcommand*{\meta}[1]{\key{M-#1}}
+
+% E-R & Relational Macros:
+\newcommand*{\ent}[1]{\texttt{#1}}		% Entity Type
+\newcommand*{\rel}[1]{\texttt{#1}}		% Relationship Type
+\newcommand*{\fk}{\ensuremath\rightarrow}       % Foreign key
+\newcommand*{\fdet}{\ensuremath\rightarrow}
+\newcommand*{\fd}[2]{\ensuremath{#1\rightarrow #2}}      % Functional Dependency
+\newcommand*{\mvd}[2]{\ensuremath{#1\twoheadrightarrow #2}} % Multi-valued Dependency
+\newcommand*{\feq}[2]{\ensuremath{#1\leftrightarrow #2}}    % Functional Equivalence
+
+\newcommand*{\sql}{\texttt}			% SQL statement
+\newcommand*{\tbl}{\texttt}			% A table
+
+% Handy mathematics macros:
+%\newcommand*{\implies}{\Rightarrow}		% Plain implies symbol!
+\newcommand{\norm}[1]{\lVert#1\rVert}		% Norm of a vector/matrix
+\newcommand{\abs}[1]{\lvert#1\rvert}		% Absolute value
+
+%\newcommand*{\iff}{\Leftrightarrow}		% Usual iff symbol
+
+% UML-related macros:
+\newcommand*{\usecase}[1]{\texttt{#1}\index{#1}\index{use case!#1}}
+\newcommand*{\actor}[1]{\texttt{\textit{#1}}\index{#1}\index{actor!#1}}
+\newcommand*{\entity}[1]{\texttt{\textbf{#1}}\index{#1}\index{entity!#1}}
+\newcommand*{\stereotype}[1]{\guillemotleft\texttt{#1}\guillemotright\index{stereotype!#1}}
+\newcommand*{\stakeholder}[1]{\emph{#1}\index{#1}\index{stakeholder!#1}}
+\newcommand*{\party}[1]{\textit{#1}\index{#1}\index{party!#1}}
+
+% Add a style for things like ``a priori'' - ie for imports into
+% english from latin, greek, french
+\newcommand*{\flang}{\textit}
+
+% GNU/Linux-oriented stuff
+\newcommand*{\howto}[1]{``#1-HOWTO''}
+\newcommand*{\gnu}{\textit{GNU}}
+\newcommand*{\gpl}{\textit{GPL}\index{GPL}}
+
+% Linux pronunciations:
+\newcommand*{\prolienux} {%
+	la\i\textbf{'}n\scriptsize{U}\normalsize{ks}
+}
+\newcommand*{\prolehnux} {%
+	l$\varepsilon$\textbf{'}n\footnotesize{$\Lambda$}\normalsize{ks}
+}
+\newcommand*{\prolinnux}{l\i\textbf{'}n\inve{}ks}
+
+
+% Miscellaneous:
+\newcommand{\wink}{\texttt{;o)}}
+\newcommand{\grin}{\texttt{:o)}}
+\newcommand*\qq[1]{\emph{``#1''}}  % A quotation
+\newcommand*{\defn}{\emph}
+\newcommand*{\definition}{\emph}
+\newcommand*\oo{object orientation}
+
+
+% Add a ``see section...'' thingy
+\newcommand*{\see}[1] {%
+    (see Section \ref{#1} on page \pageref{#1})
+}
+\newcommand*{\psee}[1] {%
+    (see page \pageref{#1})
+}
+\newcommand*{\asee}[1] {%
+    (see Appendix \ref{#1} on page \pageref{#1})
+}

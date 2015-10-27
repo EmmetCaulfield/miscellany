@@ -1,0 +1,33 @@
+\section{Rotational Mechanics}
+
+Table~\ref{tbl:rotquant} summarizes the rotational analogues of the
+more familiar translational quantities.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{lccccl} \toprule
+    \multicolumn{3}{c}{Linear Mechanics} & \multicolumn{3}{c}{Rotational Mechanics} \\ \cmidrule(r){1-3} \cmidrule(l){4-6}
+  Name           & Unit                & Symbol                & Symbol                        & Unit                  & Name                        \\ \midrule
+  Displacement   & \unit{m}            & $x$                   & $\theta$                      & \unit{rad}            & Angular Displacement        \\
+  Mass           & \unit{kg}           & $m$                   & $I$                           & \unit{kg\cdot m^2}    & Moment of inertia           \\
+  Velocity       & \unit{m}{s}         & $v = \deedee{x}{t}$   & $\omega = \deedee{\theta}{t}$ & \unit{rad}{s}         & Angular Velocity            \\
+  Momentum       & \unit{kg\cdot m}{s} & $p = mv$              & $L = I\omega$                 & \unit{kg\cdot m^2}{s} & Angular Momentum            \\
+  Acceleration   & \unit{m}{s^2}       & $a = \deedee{v}{t}$   & $\alpha = \deedee{\omega}{t}$ & \unit{rad}{s^2}       & Angular Acceleration        \\
+  Force          & \unit{N}            & $F = ma$              & $T = I\alpha$                 & \unit{N\cdot m}       & Torque                      \\
+  Work           & \unit{J}            & $W = F\dee{x}$        & $W = T \dee{\theta}$          & \unit{J}              & (Rotational) Work           \\
+  Kinetic Energy & \unit{J}            & $E = \frac{1}{2}mv^2$ & $E = \frac{1}{2}I\omega^2$    & \unit{J}              & (Rotational) Kinetic Energy \\
+  Power          & \unit{W}            & $P = Fv$              & $P = T\omega$                 & \unit{W}              & (Rotational) Power          \\ \bottomrule
+  \end{tabular}
+  \caption{Linear Quantities and Their Rotational Analogs}
+  \label{tbl:rotquant}
+\end{table}
+
+By way of example, \term{moment of inertia} is the analog of {mass} in
+translational mechanics. In the same way as the mass, $m$, (in
+\unit{kg}) can be viewed as the property of an object that determines
+the force, $F$, (in \unit{N}) required for a particular \emph{linear}
+acceleration, $a$, (in \unit{m}{s^2}) --- $F=ma \implies
+m=\frac{F}{a}$ --- moment of inertia, I, determines the \emph{torque},
+$T$, (in \unit{N\cdot m}) required for a particular \emph{angular}
+acceleration (in \unit{rad}{s^2}): $\tau=I\alpha \implies
+I=\frac{\tau}{\alpha}$.
