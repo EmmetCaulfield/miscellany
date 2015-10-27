@@ -1,6 +1,6 @@
 SVGS:=negative.svg positive.svg ivdiode.svg
 RSRC:=ac.R rcstep.R rlstep.R capac.R indac.R srlac.R phasor.R acpower.R
-RSRC+=pwrphasor.R
+RSRC+=pwrphasor.R threephase.R
 
 PDFS:=$(SVGS:.svg=.pdf)
 PDFS+=$(RSRC:.R=.pdf)

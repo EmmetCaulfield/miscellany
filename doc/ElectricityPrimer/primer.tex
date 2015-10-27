@@ -1110,20 +1110,114 @@ breakdown effects: the Zener effect and the avalanche effect.
 \subsection{Field Effect Transistor (FET)}
 
 
-\section{Electric Machines}
+\section{Three-Phase Power}
+
+Three-wire system. Optional fourth (neutral) wire.
+
+Three \term{phases} (sinusoidal AC voltages), each $\frac{2\pi}{3}$ or
+120\deg out-of-phase with the other two as shown in
+Figure~\ref{fig:threephase}.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\onewide]{threephase}
+  \caption{120/208\,\unit{V} 3-phase Power}
+  \label{fig:threephase}
+\end{figure}
+
+A 3-phase system can be described either by the
+\term{phase-to-neutral} or \term{phase-to-phase} voltages:
+\[
+V\mathrm{LL} = \sqrt{3}V\mathrm{LN}
+\]
+$V\mathrm{LL}$ (live-to-live) is used rather than $V_\mathrm{PP}$ to
+avoid confusion with peak-to-peak voltage.
+ 
+Often, 3-phase service/supply is redundantly described by the two
+values separated by a slash, e.g. 120/208, 240/415, or 277/480. Note
+that both voltages in all cases are RMS values.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\onewide]{wyevoltages}
+  \caption{120/208\,\unit{V} Wye-Connected Power}
+  \label{fig:wyevoltages}
+\end{figure}
+
+
+
+
+\subsection{Delta and Wye Connections}
+
+\subsection{Per-Unit System}
+
+
+\section{Rotating Electric Machines}
+
+There is a saying in power engineering that ``all machines are
+AC machines''.
+
+DC machines are only DC via commutation.
+
+Mechanical:
+\begin{itemize}
+  \item \term{rotor} --- rotating part
+  \item \term{stator} --- fixed part
+\end{itemize}
+
+\begin{itemize}
+  \item \term{armature winding} --- power supply/take-off; all machines have at least one armature winding. 
+  \item \term{field winding} --- provides magnetic field; permanent-magnet machines have no field winding(s).
+\end{itemize}
+
 
 \subsection{Motor}
+
+An \emph{electric motor} is a device that converts electrical power
+into mechanical rotational power.
+
+Tend to think in terms of simple unipolar permanent magnet motor.
+
+A motor with a constant magnetic field, either permanent magnet or
+DC-excited field winding(s), has a motor constant $K_v$ in
+\unit{RPM}{V}.
+
 
 \subsection{Generator}
 
 A \emph{generator} is a device that converts mechanical rotational
-power into electrical energy.
+power into electrical power.
 
 The mechanical-to-electrical conversion efficiency of a large
 generator typically exceeds 98\%.
 
-There is a saying in electrical engineering that ``all generators are
-AC generators''.
+
+
+\section{The Grid}
+
+\subsection{Transmission}
+
+\subsubsection{High-Voltage DC}
+
+Long-distance transmission, e.g. Pacific DC Intertie (3\,\unit{GW}, 3\,\unit{MV} at 1\,\unit{kA}).
+
+Advantages:
+\begin{itemize}
+  \item Two-wire. 
+  \item Relatively low current. 
+  \item Uses all the copper (no skin effect).
+  \item Electronic phase matching/regulation.
+\end{itemize}
+
+\begin{itemize}
+  \item Corona losses.
+  \item Expensive rectifiers and inverters.
+\end{itemize}
+
+\subsection{Distribution}
+
+
+\subsection{Regulation}
 
 
 
