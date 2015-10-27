@@ -504,6 +504,10 @@ seconds\footnote{A farad is a second per ohm.}:
 \[
 \tau = RC = \ruR\times\ruC = \ruTauC
 \]
+$v_\mathrm{C}(t)$ can be written:
+\[
+v_\mathrm{C}(t) = V_\mathrm{B}\left(1 - e^{-\frac{t}{\tau}}\right)
+\]
 
 
 \paragraph{DC Behavior}
@@ -657,6 +661,10 @@ In this case, the time constant is\footnote{A henry is an ohm-second.}:
 \[
 \tau = \frac{L}{R} = \frac{\ruL}{\ruR} = \ruTauL
 \]
+$v_\mathrm{L}(t)$ can be written:
+\[
+v_\mathrm{L}(t) = V_\mathrm{B}e^{-\frac{t}{\tau}}
+\]
 
 
 \paragraph{DC Behavior}
@@ -734,11 +742,12 @@ or an inductive reactance:
 Z = R + \mathrm{j}X_\mathrm{L} = R + \mathrm{j}\cdot\omega L
 \]
 
-If the reactive component of impedance is \emph{negative}, $\Im(Z)<0$, the impedance is \term{capacitive}.
-
-If the reactive component of impedance is \emph{positive}, $\Im(Z)>0$, the impedance is \term{inductive}.
-
-If the reactive component of impedance is \emph{zero}, $\Im(Z)=0$, the impedance is \term{purely resistive}.
+If the reactive component of impedance, $\Im(Z)$, is:
+\begin{itemize}
+  \item \emph{zero}, $\Im(Z)=0$, the impedance is termed \term{purely resistive}.
+  \item strictly \emph{positive}, $\Im(Z)>0$, the impedance is termed \term{inductive}.
+  \item strictly \emph{negative}, $\Im(Z)<0$, the impedance is termed \term{capacitive}.
+\end{itemize}
 
 Suppose we consider a series RL circuit --- similar to that considered
 before --- consisting of a \ruR resistor and a \ruL inductor in series
@@ -764,8 +773,9 @@ Its impedance at \ruF is:
 Z = \rnR + \mathrm{j} \cdot \rnVm\pi \cdot \rnL\times 10^{-3} \approx \ruZ
 \]
 
-If we applied the US domestic mains --- \ruVm at \ruF --- to this
-impedance, the current would be as depicted in Figure~\ref{fig:srlac}.
+If we applied the nominal domestic mains service voltage --- \ruVm at
+\ruF --- to this impedance, the current would be as depicted in
+Figure~\ref{fig:srlac}.
 
 \begin{figure}
   \centering
@@ -966,7 +976,7 @@ Mercifully and sensibly, power factor consistently uses voltage as the reference
 \end{itemize}
 
 
-\subsubsection{Phasors Point Different Directions}
+\subsubsection{Complex Values Point Different Directions}
 
 The current phasor for a lagging power factor points down, but the
 power phasor for a lagging power factor points up. An inductive
