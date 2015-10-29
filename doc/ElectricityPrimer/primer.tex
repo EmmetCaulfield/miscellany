@@ -29,7 +29,7 @@
 
 \usepackage[american]{circuitikz}
 
-\newcommand*\mytitle{Electricity Primer}
+\newcommand*\mytitle{Electricity Primer for Renewable Energy Technologies}
 \newcommand*\mysubtitle{ENERGY-293C, Fall 2015}
 
 \newcommand*\doctitle{{\mytitle} \\ {\Large{\mysubtitle}}}
@@ -1059,16 +1059,48 @@ in a bewildering number of varieties\footnote{Even leaving aside
 resonant tunnel diodes, anyone?). For power purposes, however, there
 are relatively few significant variations.
 
+There are a few different levels of ``ideality''. To a first
+approximation, an ideal diode behaves much like a flap valve, letting
+current flow one way, but not the other, and has zero resistance. At
+the next level, the diode's I-V characteristic follows the Shockley
+equation:
+\[
+I = I_\mathrm{S}\left(e^{\left(\frac{V}{V_\mathrm{T}}\right)}-1\right)
+\]
+
+\ldots where $I$ and $V$ are the diode current and voltage,
+respectively, $I_\mathrm{S}$ is the \term{reverse saturation current},
+which could be anywhere between about 1~\unit{nA} and a few~\unit{\mu
+  A}, but usually between a few and a few tens of \unit{nA}, \and
+$V_\mathrm{T}$ is the \term{thermal voltage}:
+\[
+V_\mathrm{T} = \frac{kT}{q} \approx 25.85\,~\unit{mV}\qquad \text{(at 300\,~\unit{K})}
+\]
+
+Figure~\ref{fig:shockley} plots the Shockley equation for a reverse
+saturation current of 20~\unit{nA}. Note that this diode has a forward
+current of \term{over a billion amps} at one volt: it is effectively a
+short circuit at any forward voltage more than a few hundred
+millivolts.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\onenarrow]{shockley}
+  \caption{Ideal Diode with $I_\mathrm{S}=20\,\unit{nA}$}
+  \label{fig:shockley}
+\end{figure}
+
+
 Figure~\ref{fig:ivdiode} shows a cartoon representation of the
-current-voltage behavior of a typical semiconductor diode. {\bf Note
-  that this is not to scale: }the reverse current is typically
-minuscule (sub-\unit{\mu A}) compared to the forward current
+current-voltage behavior of a typical non-ideal semiconductor
+diode. {\bf Note that this is not to scale: }the reverse current is
+typically minuscule (sub-\unit{\mu A}) compared to the forward current
 (\unit{mA} to \unit{kA} depending on application), at least until
 breakdown, and the reverse breakdown voltage is typically orders of
 magnitude larger (tens to thousands of volts) than the forward voltage
 drop (hundreds of~\unit{mV}).
 
-\begin{figure}
+\begin{figure}[ht]
   \centering
   \includegraphics[width=\onenarrow]{ivdiode}
   \caption{Generic Diode I-V Characteristic Cartoon}
@@ -1087,14 +1119,14 @@ silicon rectifier can carry a few amps, has a PIV ratings between
 maybe 100 and 1,000 volts, drops about 0.7~\unit{V}, and can switch
 fast enough for mains service.
 
-A \term{Schottky diode} has a lower forward voltage drop and higher
-switching speed, suitable for high-speed switching circuits, but at
-the expense of much lower PIV rating.
+A \term{Schottky diode} has much lower forward voltage drop, about
+0.2~\unit{V}, and higher switching speed, suitable for high-speed
+switching circuits, but at the expense of much lower PIV rating.
 
 \paragraph{Zener Diode}
 
 A \term{Zener diode} is a diode engineered so that the reverse
-breakdown voltage\footnote{Colloquially refereed to as ``the knee''.}
+breakdown voltage\footnote{Colloquially referred to as ``the knee''.}
 is consistent, non-destructive, and nearly constant with
 current. Zener diodes are typically used as voltage references.
 
@@ -1144,10 +1176,31 @@ that both voltages in all cases are RMS values.
   \label{fig:wyevoltages}
 \end{figure}
 
-
-
-
 \subsection{Delta and Wye Connections}
+
+\subsection{Why Three?}
+
+Triple power for 50\% extra copper (delta, no neutral, at HV).
+
+Very nice rectification properties, as shown in
+Figure~\ref{fig:nicerect}. Ripple frequency is six times supply
+frequency and amplitude is about 13\% of phase-to-neutral amplitude.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\onewide]{nicerect}
+  \caption{Rectified 3-Phase}
+  \label{fig:nicerect}
+\end{figure}
+
+
+
+Go to $n$-phase, get $\frac{n-3}{3}$ extra power for $\frac{n-31}{3}$
+extra copper --- no economic advantage. 
+
+Even numbers of phases don't have nice rectification properties.
+
+
 
 \subsection{Per-Unit System}
 
@@ -1165,6 +1218,7 @@ Mechanical:
   \item \term{stator} --- fixed part
 \end{itemize}
 
+Electromagnetic:
 \begin{itemize}
   \item \term{armature winding} --- power supply/take-off; all machines have at least one armature winding. 
   \item \term{field winding} --- provides magnetic field; permanent-magnet machines have no field winding(s).
