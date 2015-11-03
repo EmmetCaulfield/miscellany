@@ -29,7 +29,7 @@
 
 \usepackage[american]{circuitikz}
 
-\newcommand*\mytitle{Electricity Primer for Renewable Energy Technologies}
+\newcommand*\mytitle{Electrical and Electronics Primer for Renewable Energy Technologies}
 \newcommand*\mysubtitle{ENERGY-293C, Fall 2015}
 
 \newcommand*\doctitle{{\mytitle} \\ {\Large{\mysubtitle}}}
@@ -889,15 +889,17 @@ Looking at Figure~\ref{fig:pwrphasor} again, the current phasor (red)
 appears clockwise of the voltage phasor (blue). The angle? We
 calculated that in Equation~\ref{eqn:acohms}: \ruArgZ. The angle
 subtended by the apparent power, $S$, to the real axis is the same, so
-the power factor in this case is \rnPF.
+the power factor in this case is \rnPF \emph{lagging}.
 
 Although the usual definition of power factor doesn't admit the
 possibility of negative power factors, they have been used
-historically with differing conventions and there is an argument that
-``negative power'' is a more useful concept today, when domestic
-rooftop solar and other small-scale generators have turned what would
-traditionally have been loads into ``sometimes loads, sometimes
-generators''.
+historically to indicate leading or laggin, but with differing
+conventions. There is also an argument that ``negative power'' is a
+more useful concept today, when domestic rooftop solar and other
+small-scale generators have turned what would traditionally have been
+loads into ``sometimes loads, sometimes generators''. So if you happen
+to see a negative power factor, you'll have to read a little deeper to
+clarify what it's intended to mean.
 
 Note that, in general, although we usually shorten ``ampere'' to
 ``amp'' colloquially, this is done less often with units that
@@ -914,7 +916,7 @@ considerable confusion.
 Clearly, ``$X$ lags $Y$'' is the same as saying ``$Y$ leads
 $X$''. Neither of these are meaningful if $X$ and $Y$ differ in
 frequency, but their amplitudes are irrelevant: lagging and leading
-are purely about time.
+are purely about \emph{time}.
 
 There are four sources of confusion:
 \begin{itemize}
@@ -1052,12 +1054,16 @@ By duality, this applies equally to a Norton equivalent circuit.
 
 \subsection{Diode}
 
-Semiconductor diodes can be, broadly speaking, divided into
-\term{small signal} and \term{power} types. Small signal diodes come
-in a bewildering number of varieties\footnote{Even leaving aside
-  light-emitting diodes, laser diodes, photodiodes, etc.} (microwave
-resonant tunnel diodes, anyone?). For power purposes, however, there
-are relatively few significant variations.
+Semiconductor diodes are general electronic components that are,
+\flang{inter alia}, an important part of rectifiers used in wind
+turbines and the basis of solar photovoltaic (PV) cells.
+
+Diodes can be, broadly speaking, divided into \term{small signal} and
+\term{power} types. Small signal diodes come in a bewildering number
+of varieties\footnote{Even leaving aside light-emitting diodes, laser
+  diodes, photodiodes, etc.} (microwave resonant tunnel diodes,
+anyone?). For power purposes, however, there are relatively few
+significant variations.
 
 There are a few different levels of ``ideality''. To a first
 approximation, an ideal diode behaves much like a flap valve, letting
@@ -1110,6 +1116,10 @@ drop (hundreds of~\unit{mV}).
 
 \subsubsection{Rectifier}
 
+Used in the rectifiers of full-power converters of wind-turbines with
+direct-drive generators and in the rotor-side controllers of
+DFIG-based wind-turbines.
+
 Rectifier diodes are power diodes available in current ratings from
 perhaps 500~\unit{mA} to 10~\unit{kA}.
 
@@ -1138,8 +1148,24 @@ breakdown effects: the Zener effect and the avalanche effect.
 \subsection{Bipolar Junction Transistor (BJT)}
 
 
-
 \subsection{Field Effect Transistor (FET)}
+
+
+\subsection{Insulated-Gate Bipolar Transistor (IGBT)}
+
+A high-power switching transistor. Somewhat like a Darlington pair
+where the first stage is a MOSFET and the second stage a BJT.
+
+Used in the grid-connected inverters of all utility scale solar
+installations and direct-drive wind turbines, whether PMG
+(permanent-magnet generator) or EEG (electrically-excited generator).
+
+In geared-drive DFIG wind turbines, used in the VFD
+(variable-frequency drive) of the RSC (rotor-side controller) of the
+DFIG (doubly-fed induction generator) and the GSC (grid-side
+controller), which is essentially an inverter.
+
+Also used in electric cars.
 
 
 \section{Three-Phase Power}
