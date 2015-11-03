@@ -113,12 +113,16 @@ lines are is an indication of the strength of the field.
 
 \begin{figure}[H]
   \centering
-  \subfigure[Positive Charge]{%
-    \label{fig:positive}\includegraphics[width=\twowide]{positive}
-  }\hskip4em
-  \subfigure[Negative Charge]{%
-    \label{fig:negative}\includegraphics[width=\twowide]{negative}
-  }
+  \begin{subfigure}[b]{\twowide}
+    \includegraphics[width=\twowide]{positive}
+    \caption{Positive Charge}
+    \label{fig:positive}
+  \end{subfigure}
+  \begin{subfigure}[b]{\twowide}
+    \includegraphics[width=\twowide]{negative}
+    \caption{Positive Charge}
+    \label{fig:negative}
+  \end{subfigure}
   \caption{Electric Field Due to An Isolated Point Charge}
   \label{fig:onecharge}
 \end{figure}
@@ -279,10 +283,4 @@ symbol \unit{\Omega}.
 
 
 \section{Electrodynamics}
-
-
-
-
-\end{document}
-
 
