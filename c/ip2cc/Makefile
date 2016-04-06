@@ -20,7 +20,7 @@ ip2cc.o: ip2cc.c ip-cbst.h
 ip2cc: ip2cc.o ip-cbst.o cbst.o
 
 ludost:
-	wget -O ${LUDOST_FILE} ${LUDOST_URL]
+	wget -O ${LUDOST_FILE} ${LUDOST_URL}
 	zcat ${LUDOST_FILE} > ${INPUT_FILE}
 
 maxmind:
