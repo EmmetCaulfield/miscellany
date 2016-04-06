@@ -1,5 +1,5 @@
-ip2cc
-=====
+ip2cc — maps IP addresses to country codes
+==========================================
 
 Introduction
 ------------
