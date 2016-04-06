@@ -17,7 +17,13 @@ static inline uint32_t xorbits0(uint32_t b, int n) {
 }
 
 
-static inline uint32_t xorbits1(uint32_t v, int n) {
+static inline uint32_t xorbits1(uint32_t b, int n) {
+    (void)n;
+    return __builtin_parity(b);
+}
+
+
+static inline uint32_t xorbits2(uint32_t v, int n) {
     (void)n;
     v ^= v >> 1;
     v ^= v >> 2;
@@ -26,7 +32,7 @@ static inline uint32_t xorbits1(uint32_t v, int n) {
 }
 
 
-static inline uint32_t xorbits2(uint32_t b, int n) {
+static inline uint32_t xorbits3(uint32_t b, int n) {
     __asm__(
 	"cmp	$0x08,	%1	\n\t"
 	"mov 	%0,	%1	\n\t"
@@ -48,7 +54,7 @@ static inline uint32_t xorbits2(uint32_t b, int n) {
 }
 
 
-static inline uint32_t xorbits3(uint32_t b, int n) {
+static inline uint32_t xorbits4(uint32_t b, int n) {
     (void)n;
     b ^= b>>16;
     b ^= b>> 8;
@@ -60,7 +66,7 @@ static inline uint32_t xorbits3(uint32_t b, int n) {
 }
 
 
-static inline uint32_t xorbits4(uint32_t b, int n) {
+static inline uint32_t xorbits5(uint32_t b, int n) {
     if(n>4) {
 	b ^= b>> 4;
 	if(n>8) {
@@ -76,7 +82,7 @@ static inline uint32_t xorbits4(uint32_t b, int n) {
     return b;
 }
 
-static inline uint32_t xorbits5(uint32_t b, int n) {    
+static inline uint32_t xorbits6(uint32_t b, int n) {    
     int i=1;
     do {
 	b  ^= b>>i;
@@ -86,7 +92,7 @@ static inline uint32_t xorbits5(uint32_t b, int n) {
     return b;
 }
 
-static inline uint32_t xorbits6(uint32_t b, int n) {    
+static inline uint32_t xorbits7(uint32_t b, int n) {    
     if(n>16) b ^= b>>16;
     if(n> 8) b ^= b>> 8;
     if(n> 4) b ^= b>> 4;
@@ -151,7 +157,7 @@ const uint32_t masks[] = {
 };
 
 #define FRST 0
-#define NFNS 7
+#define NFNS 8
 
 int main(int argc, char *argv[])
 {
@@ -162,7 +168,7 @@ int main(int argc, char *argv[])
     unsigned bit;
     long     input;
 
-    uint32_t (*xorbits[])(uint32_t, int) = {xorbits0, xorbits1, xorbits2, xorbits3, xorbits4, xorbits5, xorbits6};
+    uint32_t (*xorbits[])(uint32_t, int) = {xorbits0, xorbits1, xorbits2, xorbits3, xorbits4, xorbits5, xorbits6, xorbits7};
     double   dt[NFNS];
     unsigned count[NFNS]={0};
     int      winner;
@@ -206,7 +212,7 @@ int main(int argc, char *argv[])
     printf("%2d ", shift+1);
     for(int i=FRST; i<NFNS; i++) {
 	double pc = 100*(dt[i]-dt[winner])/dt[winner];
-	printf("%d%c%4.1f%% %s,  ", i, (count[i]==input?'-':'*'), pc, i==winner ? "winner" : "behind");
+	printf("%d%c%4.1f%% %s,  ", i, (count[i]==input?'-':'*'), pc, i==winner ? "winner" : "longer");
     }
     printf(" %5.1f Mps.\n", input/dt[winner]/1e6);
 
