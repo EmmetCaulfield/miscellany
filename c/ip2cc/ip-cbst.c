@@ -1,11 +1,13 @@
 #define _POSIX_C_SOURCE 200809L
 
+#include <defaults.h>
 #include <ip-cbst.h>
 #include <assert.h>
 
+#include <stdbool.h>    // For C99 bool/true/false
 #include <stdio.h>      // For fopen(), etc.
 #include <string.h>     // For strncat()
-#include <stdlib.h>     // For exit()
+#include <stdlib.h>     // For exit(), getenv()
 
 // For stat()
 #include <sys/types.h>
@@ -117,6 +119,69 @@ char *ip_cbst_address_range(const ip_cbst_node *node, char *buf)
 }
 
 
+// Try opening file 'first', then try the filename in envvar
+FILE *ip_cbst_open_dbfile(const char *first, const char *second, const char *envar, const char* mode, bool die) {
+    FILE *fp    = NULL;
+    const char *files[3];
+    size_t i;
+
+    files[0] = first;
+    files[1] = second;
+    files[2] = getenv(envar);
+
+    // Caller should have set this:
+    assert( mode!=NULL );
+
+    for(i=0; i<3; i++) {
+        const char* filename=files[i];
+        if( filename!=NULL ) {
+            fp = fopen(filename, mode);
+            if( fp!=NULL ) {
+                return fp;
+            }
+            if( die ) {
+                perror(filename);
+            }
+        }
+    }
+    if( die ) {
+        exit(EXIT_FAILURE);
+    }
+    return NULL;
+}
+
+
+int ip_cbst_stat_dbfile(const char *first, const char *second, const char *envar, struct stat* stat_out, bool die) {
+    const char *files[3];
+    size_t i;
+
+    files[0] = first;
+    files[1] = second;
+    files[2] = getenv(envar);
+
+    // Caller should have set this:
+    assert( stat_out!=NULL );
+
+    for(i=0; i<3; i++) {
+        const char* filename=files[i];
+        if( filename!=NULL ) {
+            if( 0==stat(filename, stat_out) ) {
+                return 0;
+            }
+            if( die ) {
+                perror(filename);
+            }
+        }
+    }
+    if( die ) {
+        exit(EXIT_FAILURE);
+    }
+    return -1;
+}
+
+
+
+
 const ip_cbst_node* ip_cbst_load_text(const char *filename, size_t* nmemb)
 {
     FILE    *fp      = NULL;    // Text database file
@@ -134,10 +199,12 @@ const ip_cbst_node* ip_cbst_load_text(const char *filename, size_t* nmemb)
     size_t index   = 0;         // Index at which record was placed in CBST
     (void) index;
     
-    fp = fopen(filename, "r");
-    assert(fp!=NULL);
+
+    assert( nmemb!=NULL );
+    fp = ip_cbst_open_dbfile(filename, IP2CC_TXTDB_NAME, IP2CC_TXTDB_ENVAR, "r", false);
+    assert( fp!=NULL );
+
     n_lines = count_lines(fp);
-//    printf("#lines: %zu\n", n_lines);
     cbst = ip_cbst_new(n_lines);
 
     line_nr = 0;
@@ -162,7 +229,8 @@ void ip_cbst_save_bin(const ip_cbst_node *cbst, size_t nmemb, const char *filena
 {
     FILE *fp = NULL;
     
-    fp = fopen(filename, "wb");
+    assert( cbst!=NULL );
+    fp = ip_cbst_open_dbfile(filename, IP2CC_BINDB_NAME, IP2CC_BINDB_ENVAR, "wb", false); 
     assert(fp!=NULL);
     
     fwrite(&nmemb, sizeof(size_t), 1, fp);
@@ -177,10 +245,8 @@ const ip_cbst_node* ip_cbst_load_bin(const char *filename, size_t *nmemb)
     FILE         *fp   = NULL;
     ip_cbst_node *cbst = NULL;
 
-    assert(filename!=NULL);
     assert(nmemb!=NULL);
-
-    fp = fopen(filename, "rb");
+    fp = ip_cbst_open_dbfile(filename, IP2CC_BINDB_NAME, IP2CC_BINDB_ENVAR, "rb", false);
     assert(fp!=NULL);
     
     fread(nmemb, sizeof(size_t), 1, fp);
@@ -195,48 +261,31 @@ const ip_cbst_node* ip_cbst_load_bin(const char *filename, size_t *nmemb)
 
 const ip_cbst_node* ip_cbst_load(const char *stub, size_t *nmemb)
 {
-    char *bin_path = NULL;
-    char *txt_path = NULL;
-    int   len;
+//    int len = 0;
     struct stat bin_stat;
     struct stat txt_stat;
-
     const ip_cbst_node* cbst = NULL;
 
-    assert(stub != NULL);
+    // FIXME
+    (void)stub;
     assert(nmemb != NULL);
 
-    len = strlen(stub);
-
-    bin_path = malloc(len);
-    assert(bin_path!=NULL);
-    strncpy(bin_path, stub, len);
-    strncat(bin_path, ".bin", 4);
-
-    txt_path = malloc(len);
-    assert(txt_path!=NULL);
-    strncpy(txt_path, stub, len);
-    strncat(txt_path, ".txt", 4);
-
-    if( stat(bin_path, &bin_stat) ) {
+    if( ip_cbst_stat_dbfile(NULL, IP2CC_BINDB_NAME, IP2CC_BINDB_ENVAR, &bin_stat, false) ) {
         // Presume that file does not exist
-        cbst = ip_cbst_load_text(txt_path, nmemb);
-        ip_cbst_save_bin(cbst, *nmemb, bin_path);
-    } else if( stat(txt_path, &txt_stat) ) {
+        cbst = ip_cbst_load_text(NULL, nmemb);
+        ip_cbst_save_bin(cbst, *nmemb, NULL);
+    } else if(  ip_cbst_stat_dbfile(NULL, IP2CC_TXTDB_NAME, IP2CC_TXTDB_ENVAR, &txt_stat, false) ) {
         // Neither the .db (text) or .bin (binary) versions are stat()-able
         perror("failed to stat() any data files");
         exit(EXIT_FAILURE);
     } else {
         if( txt_stat.st_mtime > bin_stat.st_mtime ) {
-            cbst = ip_cbst_load_text(txt_path, nmemb);
-            ip_cbst_save_bin(cbst, *nmemb, bin_path);
+            cbst = ip_cbst_load_text(NULL, nmemb);
+            ip_cbst_save_bin(cbst, *nmemb, NULL);
         } else {
-            cbst = ip_cbst_load_bin(bin_path, nmemb);
+            cbst = ip_cbst_load_bin(NULL, nmemb);
         }
     }
-
-    free(bin_path);
-    free(txt_path);
 
     return cbst;
 }
