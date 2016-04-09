@@ -107,31 +107,31 @@ char *ip_cbst_append_cidr(char *buf, in_addr_t lo, in_addr_t hi) {
 
     naddrs = hi-lo + 1;
     while( naddrs>0 ) {
-        printf("%zu, ", naddrs);
+//        printf("%zu, ", naddrs);
         // Highest set bit:
         nbits = 31-__builtin_clz(naddrs);
-        printf("%zu, ", nbits);
+//        printf("%zu, ", nbits);
 
         // Number of addresses covered by this bit:
         ncidr = 1 << nbits;
-        printf("%zu, ", ncidr);
+//        printf("%zu, ", ncidr);
 
         if( ncidr & naddrs ) {
             // Append CIDR block to buf
             ip.s_addr=htonl(lo);
             len=strlen(buf);
             snprintf(buf+len, 20, " %s/%zu", inet_ntoa(ip), 32-nbits);
-            printf("%zu, ", 32-nbits);
+//            printf("%zu, ", 32-nbits);
 
             // Adjust low address to account for this bit:
             lo += ncidr;
-            printf("%zu, ", lo);
+//          printf("%zu, ", lo);
 
             // Zap this bit:
             naddrs &= ~ncidr;
-            printf("%zx, ", ~ncidr);
+//          printf("%zx, ", ~ncidr);
         }
-        printf("%zu\n", naddrs);
+//      printf("%zu\n", naddrs);
     }
 
     return buf;
