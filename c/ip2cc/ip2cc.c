@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     const ip_cbst_node* cbst = NULL;
     size_t nmemb = 0;
     const ip_cbst_node* node = NULL;
-    char buf[32];
+    char buf[512];
 
     assert(argc>=2);
 

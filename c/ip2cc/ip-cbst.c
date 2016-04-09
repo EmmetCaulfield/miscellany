@@ -101,19 +101,64 @@ static char *next_word(char *str) {
     return NULL;
 }
 
+char *ip_cbst_append_cidr(char *buf, in_addr_t lo, in_addr_t hi) {
+    struct in_addr ip;
+    size_t len=0, naddrs=0, nbits=0, ncidr=0;
+
+    naddrs = hi-lo + 1;
+    while( naddrs>0 ) {
+        printf("%zu, ", naddrs);
+        // Highest set bit:
+        nbits = 31-__builtin_clz(naddrs);
+        printf("%zu, ", nbits);
+
+        // Number of addresses covered by this bit:
+        ncidr = 1 << nbits;
+        printf("%zu, ", ncidr);
+
+        if( ncidr & naddrs ) {
+            // Append CIDR block to buf
+            ip.s_addr=htonl(lo);
+            len=strlen(buf);
+            snprintf(buf+len, 20, " %s/%zu", inet_ntoa(ip), 32-nbits);
+            printf("%zu, ", 32-nbits);
+
+            // Adjust low address to account for this bit:
+            lo += ncidr;
+            printf("%zu, ", lo);
+
+            // Zap this bit:
+            naddrs &= ~ncidr;
+            printf("%zx, ", ~ncidr);
+        }
+        printf("%zu\n", naddrs);
+    }
+
+    return buf;
+}
+
+
+// To be safe, buf must be a few hundred bytes long
 char *ip_cbst_address_range(const ip_cbst_node *node, char *buf) 
 {
     struct in_addr ip;
+    size_t len, naddrs;
 
     assert(node!=NULL);
     assert(buf!=NULL);
 
     *buf='\0';
     ip.s_addr=htonl(node->addr_lo);
-    strncat(buf, inet_ntoa(ip), 15);
-    strncat(buf, "-", 1);
+    strncat(buf, inet_ntoa(ip), 16);
+    strncat(buf, "-", 2);
     ip.s_addr=htonl(node->addr_hi);
-    strncat(buf, inet_ntoa(ip), 15);
+    strncat(buf, inet_ntoa(ip), 16);
+    strncat(buf, " ", 2);
+    len = strlen(buf);
+    naddrs = node->addr_hi-node->addr_lo;
+    snprintf(buf+len, 12, "%zu", naddrs);
+
+    ip_cbst_append_cidr(buf, node->addr_lo, node->addr_hi);
 
     return buf;
 }
