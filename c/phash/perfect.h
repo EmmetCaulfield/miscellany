@@ -21,6 +21,8 @@ Source is http://burtleburtle.net/bob/c/perfect.h
 #define RETRY_PERFECT    1     /* number of times to try to make a perfect hash */
 #define RETRY_HEX      200     /* RETRY_PERFECT when hex keys given */
 
+#define INDENT "    "
+
 /* the generated code for the final hash, assumes initial hash is done */
 typedef struct gencode
 {
