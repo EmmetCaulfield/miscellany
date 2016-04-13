@@ -50,6 +50,8 @@ determined a perfect hash for the whole set of keys.
 #include <recycle.h>
 #include <lookupa.h>
 
+#include <die.h>
+
 #include <stdlib.h>     /* for exit()              */
 #include <inttypes.h>   /* for PRIx32 etc.         */
 #include <string.h>     /* for memset() etc.       */
@@ -58,6 +60,9 @@ determined a perfect hash for the whole set of keys.
 
 #define u32_nbits 32
 
+#ifndef PHNAME
+#  define PHNAME "phash"
+#endif
 
 /*
 ------------------------------------------------------------------------------
@@ -86,8 +91,7 @@ static uint32_t permute(
     int const3 = 1+nbits/3;
     int const4 = 1+nbits/4;
     int const5 = 1+nbits/5;
-    for (i=0; i<20; ++i)
-    {
+    for (i=0; i<20; ++i) {
         x = (x+(x<<const2)) & mask; 
         x = (x^(x>>const3));
         x = (x+(x<<const4)) & mask;
@@ -104,8 +108,7 @@ static void scrambleinit(uint32_t *scramble, uint32_t smax)
     uint32_t i;
 
     /* fill scramble[] with distinct random integers in 0..smax-1 */
-    for (i=0; i<SCRAMBLE_LEN; ++i)
-    {
+    for (i=0; i<SCRAMBLE_LEN; ++i) {
         scramble[i] = permute(i, mylog2(smax));
     }
 }
@@ -122,27 +125,17 @@ static void checkdup(const key *key1, const key *key2, const hashform *form)
         if ((key1->len_k == key2->len_k) &&
             !memcmp(key1->name_k, key2->name_k, (size_t)key1->len_k))
         {
-            fprintf(stderr, __FILE__ ": Duplicates keys!  %.*s\n",
-                    key1->len_k, key1->name_k);
-            exit(EXIT_FAILURE);
+            DIE("duplicate keys! %.*s", key1->len_k, key1->name_k);
         }
         break;
     case INT_HT:
-        if (key1->hash_k == key2->hash_k)
-        {
-            fprintf(stderr, __FILE__ ": Duplicate keys!  %.8" PRIx32 "\n", key1->hash_k);
-            exit(EXIT_FAILURE);
-        }
+        DIE_IF(key1->hash_k == key2->hash_k, "duplicate keys! %.8" PRIx32, key1->hash_k);
         break;
     case AB_HT:
-        fprintf(stderr, __FILE__ ": Duplicate keys!  %.8" PRIx32 " %.8" PRIx32 "\n",
-                key1->a_k, key1->b_k);
-        exit(EXIT_FAILURE);
-        break;
+        // There was no test here (EC20160413)
+        DIE("duplicate keys!  %.8" PRIx32 " %.8" PRIx32, key1->a_k, key1->b_k);
     default:
-        fprintf(stderr, __FILE__ ": Illegal hash type %" PRIu32 "\n", (uint32_t)form->hashtype);
-        exit(EXIT_FAILURE);
-        break;
+        DIE("illegal hash type %" PRIu32, (uint32_t)form->hashtype);
     }
 }
 
@@ -212,10 +205,10 @@ static void initnorm(
             mykey->b_k = state[1]&(blen-1);
         }
         final->used = 4;
-        sprintf(final->line[0], "    uint32_t i,state[CHECKSTATE],rsl;\n");
-        sprintf(final->line[1], "    for (i=0; i<CHECKSTATE; ++i) state[i]=0x%" PRIx32 ";\n",initlev);
-        sprintf(final->line[2], "    checksum(key, len, state);\n");
-        sprintf(final->line[3], "    rsl = ((state[0]&0x%" PRIx32 ")^phash_scramble[phash_tab[state[1]&0x%" 
+        sprintf(final->line[0], INDENT "uint32_t i,state[CHECKSTATE],rsl;\n");
+        sprintf(final->line[1], INDENT "for (i=0; i<CHECKSTATE; ++i) state[i]=0x%" PRIx32 ";\n",initlev);
+        sprintf(final->line[2], INDENT "checksum(key, len, state);\n");
+        sprintf(final->line[3], INDENT "rsl = ((state[0]&0x%" PRIx32 ")^" PHNAME "_scramble[" PHNAME "_tab[state[1]&0x%" 
                 PRIx32 "]]);\n", alen-1, blen-1);
     } else {
         uint32_t loga    = mylog2(alen);     /* log based 2 of blen */
@@ -227,17 +220,17 @@ static void initnorm(
             mykey->b_k = (blen > 1) ? hash&(blen-1) : 0;
         }
         final->used = 2;
-        sprintf(final->line[0], 
-                "  uint32_t rsl, val = lookup(key, len, 0x%" PRIx32 ");\n", initlev);
+        sprintf(final->line[0], INDENT
+                "uint32_t rsl, val = lookup(key, len, 0x%" PRIx32 ");\n", initlev);
         if (smax <= 1) {
-            sprintf(final->line[1], "  rsl = 0;\n");
+            sprintf(final->line[1], INDENT "rsl = 0;\n");
         } else if (mylog2(alen) == 0) {
-            sprintf(final->line[1], "  rsl = phash_tab[val&0x%" PRIx32 "];\n", blen-1);
+            sprintf(final->line[1], INDENT "rsl = " PHNAME "_tab[val&0x%" PRIx32 "];\n", blen-1);
         } else if (blen < USE_SCRAMBLE) {
-            sprintf(final->line[1], "  rsl = ((val>>%" PRIu32 ")^phash_tab[val&0x%" PRIx32 "]);\n",
+            sprintf(final->line[1], INDENT "rsl = ((val>>%" PRIu32 ")^" PHNAME "_tab[val&0x%" PRIx32 "]);\n",
                     u32_nbits-mylog2(alen), blen-1);
         } else {
-            sprintf(final->line[1], "  rsl = ((val>>%" PRIu32 ")^phash_scramble[phash_tab[val&0x%" PRIx32 "]]);\n",
+            sprintf(final->line[1], INDENT "rsl = ((val>>%" PRIu32 ")^" PHNAME "_scramble[" PHNAME "_tab[val&0x%" PRIx32 "]]);\n",
                     u32_nbits-mylog2(alen), blen-1);
         }
     }
@@ -280,12 +273,12 @@ static void initinl(
     }
     else if (blen < USE_SCRAMBLE)
     {
-        sprintf(final->line[0], "  uint32_t rsl = ((val & 0x%" PRIx32 ") ^ phash_tab[val >> %" PRIu32 "]);\n",
+        sprintf(final->line[0], "  uint32_t rsl = ((val & 0x%" PRIx32 ") ^ " PHNAME "_tab[val >> %" PRIu32 "]);\n",
                 amask, u32_nbits-blog);
     }
     else
     {
-        sprintf(final->line[0], "  uint32_t rsl = ((val & 0x%" PRIx32 ") ^ phash_scramble[phash_tab[val >> %" PRIu32 "]]);\n",
+        sprintf(final->line[0], "  uint32_t rsl = ((val & 0x%" PRIx32 ") ^ " PHNAME "_scramble[" PHNAME "_tab[val >> %" PRIu32 "]]);\n",
                 amask, u32_nbits-blog);
     }
 }
@@ -326,14 +319,13 @@ static uint32_t initkey(
         if (finished) return 2;
         break;
     default:
-        fprintf(stderr, "fatal error: illegal mode\n"); 
-        exit(1);
+        DIE("illegal mode"); 
     }
     
     if (nkeys <= 1)
     {
         final->used = 1;
-        sprintf(final->line[0], "  uint32_t rsl = 0;\n");
+        sprintf(final->line[0], INDENT "uint32_t rsl = 0;\n");
         return 2;
     }
     
@@ -597,71 +589,54 @@ static void hash_ab(
         while (*alen <= mykey->a_k) *alen *= 2;
         while (*blen <= mykey->b_k) *blen *= 2;
     }
-    if (*alen > 2**smax)
-    {
-        fprintf(stderr,
-                __FILE__ ": Can't deal with (A,B) having A bigger than twice \n");
-        fprintf(stderr,
-                "  the smallest power of two greater or equal to any legal hash.\n");
-        exit(EXIT_FAILURE);
-    }
+
+    /* Can't handle A bigger than twice the smallest power of two
+     * greater or equal to any legal hash. */
+    DIE_IF((*alen > 2**smax), "A is too big");
     
     /* allocate working memory */
     *tabb = (bstuff *)malloc((size_t)(sizeof(bstuff)*(*blen))); 
     tabq  = (qstuff *)remalloc(sizeof(qstuff)*(*blen+1), __FILE__ ", tabq");
     tabh  = (hstuff *)remalloc(sizeof(hstuff)*(form->perfect == MINIMAL_HP ? 
-                                               nkeys : *smax),
-                               __FILE__ ", tabh");
+                                               nkeys : *smax), __FILE__ ", tabh");
     
     /* check that (a,b) are distinct and put them in tabb indexed by b */
     (void)inittab(*tabb, *blen, keys, form, false);
     
     /* try with smax */
-    if (!perfect(*tabb, tabh, tabq, *blen, *smax, scramble, nkeys, form))
-    {
-        if (form->perfect == MINIMAL_HP)
-        {
-            printf("fatal error: Cannot find perfect hash for user (A,B) pairs\n");
-            exit(EXIT_FAILURE);
+    if (!perfect(*tabb, tabh, tabq, *blen, *smax, scramble, nkeys, form)) {
+        DIE_IF(form->perfect == MINIMAL_HP, "can't find perfect hash for user (A,B) pairs");
+
+        /* try with 2*smax */
+        free((void *)tabh);
+        *smax = *smax * 2;
+        scrambleinit(scramble, *smax);
+        tabh = (hstuff *)remalloc(sizeof(hstuff)*(form->perfect == MINIMAL_HP ? nkeys : *smax),
+                                  __FILE__ ", tabh");
+
+        if (!perfect(*tabb, tabh, tabq, *blen, *smax, scramble, nkeys, form)) {
+            DIE("can't find perfect hash for user (A,B) pairs");
         }
-        else
-        {
-            /* try with 2*smax */
-            free((void *)tabh);
-            *smax = *smax * 2;
-            scrambleinit(scramble, *smax);
-            tabh = (hstuff *)remalloc(sizeof(hstuff)*(form->perfect == MINIMAL_HP ?
-                                                      nkeys : *smax),
-                                      __FILE__ ", tabh");
-            if (!perfect(*tabb, tabh, tabq, *blen, *smax, scramble, nkeys, form))
-            {
-                printf("fatal error: Cannot find perfect hash for user (A,B) pairs\n");
-                exit(EXIT_FAILURE);
-            }
-        }
+
     }
     
     /* check if tab[] was really needed */
-    for (i=0; i<*blen; ++i)
-    {
-        if ((*tabb)[i].val_b != 0) break;            /* assumes permute(0) == 0 */
+    for (i=0; i<*blen; ++i) {
+        if ((*tabb)[i].val_b != 0) { /* assumes permute(0) == 0 */
+            break;            
+        }
     }
     used_tab = (i < *blen);
     
     /* write the code for the perfect hash */
     *salt = 1;
     final->used = 1;
-    if (!used_tab)
-    {
-        sprintf(final->line[0], "  uint32_t rsl = a;\n");
-    }
-    else if (*blen < USE_SCRAMBLE)
-    {
-        sprintf(final->line[0], "  uint32_t rsl = (a ^ phash_tab[b]);\n");
-    }
-    else
-    {
-        sprintf(final->line[0], "  uint32_t rsl = (a ^ phash_scramble[phash_tab[b]]);\n");
+    if (!used_tab) {
+        sprintf(final->line[0], INDENT "uint32_t rsl = a;\n");
+    } else if (*blen < USE_SCRAMBLE) {
+        sprintf(final->line[0], INDENT "uint32_t rsl = (a ^ " PHNAME "_tab[b]);\n");
+    } else {
+        sprintf(final->line[0], INDENT "uint32_t rsl = (a ^ " PHNAME "_scramble[" PHNAME "_tab[b]]);\n");
     }
     
     printf("success, found a perfect hash\n");
@@ -851,43 +826,34 @@ void findhash(
     *salt = 0;
     bad_initkey = 0;
     bad_perfect = 0;
-    for (trysalt=1; ; ++trysalt)
-    {
+    for (trysalt=1; ; ++trysalt) {
         uint32_t rslinit;
         /* Try to find distinct (A,B) for all keys */
         
         rslinit = initkey(keys, nkeys, *tabb, *alen, *blen, *smax, trysalt,
                           form, final);
         
-        if (rslinit == 2)
-        {      /* initkey actually found a perfect hash, not just distinct (a,b) */
+        if (rslinit == 2) {
+            /* initkey actually found a perfect hash, not just distinct (a,b) */
             *salt = 1;
             *blen = 0;
             break;
-        }
-        else if (rslinit == 0)
-        {
+        } else if (rslinit == 0) {
             /* didn't find distinct (a,b) */
-            if (++bad_initkey >= RETRY_INITKEY)
-            {
+            if (++bad_initkey >= RETRY_INITKEY) {
                 /* Try to put more bits in (A,B) to make distinct (A,B) more likely */
-                if (*alen < maxalen)
-                {
+                if (*alen < maxalen) {
                     *alen *= 2;
-                } 
-                else if (*blen < *smax)
-                {
+                } else if (*blen < *smax) {
                     *blen *= 2;
                     free(tabq);
                     free(*tabb);
                     *tabb  = (bstuff *)malloc((size_t)(sizeof(bstuff)*(*blen)));
                     tabq  = (qstuff *)malloc((size_t)(sizeof(qstuff)*(*blen+1)));
-                }
-                else
-                {
+                } else {
+                    // EC: This seems rather a waste of time if we're just going to bail
                     duplicates(*tabb, *blen, keys, form);      /* check for duplicates */
-                    printf("fatal error: Cannot perfect hash: cannot find distinct (A,B)\n");
-                    exit(EXIT_FAILURE);
+                    DIE("can't find distinct (A,B)");
                 }
                 bad_initkey = 0;
                 bad_perfect = 0;
@@ -898,24 +864,18 @@ void findhash(
         printf("found distinct (A,B) on attempt %" PRIu32 "\n", trysalt);
         
         /* Given distinct (A,B) for all keys, build a perfect hash */
-        if (!perfect(*tabb, tabh, tabq, *blen, *smax, scramble, nkeys, form))
-        {
+        if (!perfect(*tabb, tabh, tabq, *blen, *smax, scramble, nkeys, form)){
             if ((form->hashtype != INT_HT && ++bad_perfect >= RETRY_PERFECT) || 
-                (form->hashtype == INT_HT && ++bad_perfect >= RETRY_HEX))
-            {
-                if (*blen < *smax)
-                {
+                (form->hashtype == INT_HT && ++bad_perfect >= RETRY_HEX)) {
+                if (*blen < *smax) {
                     *blen *= 2;
                     free(*tabb);
                     free(tabq);
                     *tabb  = (bstuff *)malloc((size_t)(sizeof(bstuff)*(*blen)));
                     tabq  = (qstuff *)malloc((size_t)(sizeof(qstuff)*(*blen+1)));
                     --trysalt;               /* we know this salt got distinct (A,B) */
-                }
-                else
-                {
-                    printf("fatal error: Cannot perfect hash: cannot build tab[]\n");
-                    exit(EXIT_FAILURE);
+                } else {
+                    DIE("cannot build tab[]");
                 }
                 bad_perfect = 0;
             }
@@ -952,27 +912,17 @@ static void getkeys(
     mytext = (char *)renew(textroot);
     *keys = 0;
     *nkeys = 0;
-    while (fgets(mytext, MAXKEYLEN, stdin))
-    {
+    while (fgets(mytext, MAXKEYLEN, stdin)) {
         mykey = (key *)renew(keyroot);
-        if (form->mode == AB_HM)
-        {
+        if (form->mode == AB_HM) {
             sscanf(mytext, "%" PRIx32 " %" PRIx32 " ", &mykey->a_k, &mykey->b_k);
-        }
-        else if (form->mode == ABDEC_HM)
-        {
+        } else if (form->mode == ABDEC_HM) {
             sscanf(mytext, "%" PRIu32 " %" PRIu32 " ", &mykey->a_k, &mykey->b_k);
-        }
-        else if (form->mode == HEX_HM)
-        {
+        } else if (form->mode == HEX_HM) {
             sscanf(mytext, "%" PRIx32 " ", &mykey->hash_k);
-        }
-        else if (form->mode == DECIMAL_HM)
-        {
+        } else if (form->mode == DECIMAL_HM) {
             sscanf(mytext, "%" PRIu32 " ", &mykey->hash_k);
-        }
-        else
-        {
+        } else {
             mykey->name_k = (uint8_t *)mytext;
             mytext = (char *)renew(textroot);
             mykey->len_k  = (uint32_t)(strlen((char *)mykey->name_k)-1);
@@ -992,41 +942,41 @@ uint32_t  nkeys;
 uint32_t  salt;
 {
     FILE *f;
-    f = fopen("phash.h", "w");
-    fputs("#ifndef PHASH_H\n", f);
-    fputs("#define PHASH_H\n", f);
+    f = fopen(PHNAME ".h", "w");
+    fputs("#ifndef " PHNAME "_H\n", f);
+    fputs("#define " PHNAME "_H\n", f);
     fputs("/* Perfect hash definitions */\n\n", f);
     fputs("#include <stdint.h>\n\n",f);
     
     if (blen > 0)
     {
         if (smax <= UINT8_MAX+1 || blen >= USE_SCRAMBLE)
-            fputs("extern uint8_t phash_tab[];\n", f);
+            fputs("extern uint8_t " PHNAME "_tab[];\n", f);
         else
         {
-            fputs("extern uint16_t phash_tab[];\n", f);
+            fputs("extern uint16_t " PHNAME "_tab[];\n", f);
             if (blen >= USE_SCRAMBLE)
             {
                 if (smax <= UINT16_MAX+1)
-                    fputs("extern uint16_t phash_scramble[];\n", f);
+                    fputs("extern uint16_t " PHNAME "_scramble[];\n", f);
                 else
-                    fputs("extern uint32_t phash_scramble[];\n", f);
+                    fputs("extern uint32_t " PHNAME "_scramble[];\n", f);
             }
         }
-        fprintf(f, "#define PHASH_LEN 0x%" PRIx32 "  /* length of hash mapping table */\n",
+        fprintf(f, "#define " PHNAME "_LEN 0x%" PRIx32 "  /* length of hash mapping table */\n",
                 blen);
     }
-    fprintf(f, "#define PHASH_NKEYS %" PRIu32 "  /* How many keys were hashed */\n",
+    fprintf(f, "#define " PHNAME "_NKEYS %" PRIu32 "  /* How many keys were hashed */\n",
             nkeys);
-    fprintf(f, "#define PHASH_RANGE %" PRIu32 "  /* Range any input might map to */\n",
+    fprintf(f, "#define " PHNAME "_RANGE %" PRIu32 "  /* Range any input might map to */\n",
             smax);
-    fprintf(f, "#define PHASH_SALT 0x%.8" PRIx32 " /* internal, initialize normal hash */\n",
+    fprintf(f, "#define " PHNAME "_SALT 0x%.8" PRIx32 " /* internal, initialize normal hash */\n",
             salt*0x9e3779b9);
     
-    fputs("\nuint32_t phash_str(const char *key, int len);\n", f);
-    fputs("\nuint32_t phash_u32(uint32_t val);\n", f);
-    fputs("\nuint32_t phash_ab(uint32_t a, uint32_t b);\n", f);
-    fputs("#endif  /* PHASH_H */\n\n", f);
+    fputs("\nuint32_t " PHNAME "_str(const char *key, int len);\n", f);
+    fputs("\nuint32_t " PHNAME "_u32(uint32_t val);\n", f);
+    fputs("\nuint32_t " PHNAME "_ab(uint32_t a, uint32_t b);\n", f);
+    fputs("\n#endif  /* " PHNAME "_H */\n\n", f);
     fclose(f);
 }
 
@@ -1042,9 +992,9 @@ static void make_c(
     uint32_t   i;
     FILE *f;
 
-    f = fopen("phash.c", "w");
+    f = fopen(PHNAME ".c", "w");
     fputs("/* table for the mapping for the perfect hash */\n",f);
-    fputs("#include <phash.h>\n",f);
+    fputs("#include <" PHNAME ".h>\n",f);
     fputs("#include <lookupa.h>\n",f);
     fputs("\n",f);
     if (blen >= USE_SCRAMBLE)
@@ -1052,14 +1002,14 @@ static void make_c(
         fputs("/* A way to make the 1-byte values in tab bigger */\n",f);
         if (smax > UINT16_MAX+1)
         {
-            fputs("uint32_t phash_scramble[] = {\n",f);
+            fputs("uint32_t " PHNAME "_scramble[] = {\n",f);
             for (i=0; i<=UINT8_MAX; i+=4)
-                fprintf(f, "0x%.8" PRIx32 ", 0x%.8" PRIx32 ", 0x%.8" PRIx32 ", 0x%.8" PRIx32 ",\n",
+                fprintf(f, INDENT "0x%.8" PRIx32 ", 0x%.8" PRIx32 ", 0x%.8" PRIx32 ", 0x%.8" PRIx32 ",\n",
                         scramble[i+0], scramble[i+1], scramble[i+2], scramble[i+3]);
         }
         else
         {
-            fputs("uint16_t phash_scramble[] = {\n",f);
+            fputs("uint16_t " PHNAME "_scramble[] = {\n",f);
             for (i=0; i<=UINT8_MAX; i+=8)
                 fprintf(f, 
                         "0x%.4" PRIx32 ", 0x%.4" PRIx32 ", 0x%.4" PRIx32 ", 0x%.4" PRIx32 ", 0x%.4" PRIx32 ", 0x%.4" PRIx32 ", 0x%.4" PRIx32 ", 0x%.4" PRIx32 ",\n",
@@ -1073,18 +1023,18 @@ static void make_c(
         fputs("/* small adjustments to _a_ to make values distinct */\n", f);
         
         if (smax <= UINT8_MAX+1 || blen >= USE_SCRAMBLE)
-            fputs("uint8_t phash_tab[] = {\n", f);
+            fputs("uint8_t " PHNAME "_tab[] = {\n", f);
         else
-            fputs("uint16_t phash_tab[] = {\n", f);
+            fputs("uint16_t " PHNAME "_tab[] = {\n", f);
         
-        if (blen < 16)
-        {
-            for (i=0; i<blen; ++i) fprintf(f, "%3d,", scramble[tab[i].val_b]);
-        }
-        else if (blen <= 1024)
-        {
-            for (i=0; i<blen; i+=16)
-                fprintf(f, "%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",\n",
+        if (blen < 16) {
+            fputs(INDENT, f);
+            for (i=0; i<blen; ++i) {
+                fprintf(f, "%3d,", scramble[tab[i].val_b]);
+            }
+        } else if (blen <= 1024) {
+            for (i=0; i<blen; i+=16) {
+                fprintf(f, INDENT "%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",\n",
                         scramble[tab[i+0].val_b], scramble[tab[i+1].val_b], 
                         scramble[tab[i+2].val_b], scramble[tab[i+3].val_b], 
                         scramble[tab[i+4].val_b], scramble[tab[i+5].val_b], 
@@ -1093,20 +1043,18 @@ static void make_c(
                         scramble[tab[i+10].val_b], scramble[tab[i+11].val_b], 
                         scramble[tab[i+12].val_b], scramble[tab[i+13].val_b], 
                         scramble[tab[i+14].val_b], scramble[tab[i+15].val_b]); 
-        }
-        else if (blen < USE_SCRAMBLE)
-        {
-            for (i=0; i<blen; i+=8)
-                fprintf(f, "%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",\n",
+            }
+        } else if (blen < USE_SCRAMBLE) {
+            for (i=0; i<blen; i+=8) {
+                fprintf(f, INDENT "%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",\n",
                         scramble[tab[i+0].val_b], scramble[tab[i+1].val_b], 
                         scramble[tab[i+2].val_b], scramble[tab[i+3].val_b], 
                         scramble[tab[i+4].val_b], scramble[tab[i+5].val_b], 
-                        scramble[tab[i+6].val_b], scramble[tab[i+7].val_b]); 
-        }
-        else 
-        {
-            for (i=0; i<blen; i+=16)
-                fprintf(f, "%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",\n",
+                        scramble[tab[i+6].val_b], scramble[tab[i+7].val_b]);
+            }
+        } else {
+            for (i=0; i<blen; i+=16) {
+                fprintf(f, INDENT "%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",%" PRIu32 ",\n",
                         tab[i+0].val_b, tab[i+1].val_b, 
                         tab[i+2].val_b, tab[i+3].val_b, 
                         tab[i+4].val_b, tab[i+5].val_b, 
@@ -1114,7 +1062,8 @@ static void make_c(
                         tab[i+8].val_b, tab[i+9].val_b, 
                         tab[i+10].val_b, tab[i+11].val_b, 
                         tab[i+12].val_b, tab[i+13].val_b, 
-                        tab[i+14].val_b, tab[i+15].val_b); 
+                        tab[i+14].val_b, tab[i+15].val_b);
+            }
         }
         fputs("};\n\n", f);
     }
@@ -1122,28 +1071,28 @@ static void make_c(
     switch(form->mode)
     {
     case NORMAL_HM:
-        fputs("uint32_t phash_u32(uint32_t val) { return 0; }\n", f);
-        fputs("uint32_t phash_ab(uint32_t a, uint32_t b) { return 0; }\n", f);
-        fputs("uint32_t phash_str(const char *key, int len)\n", f);
+        fputs("uint32_t " PHNAME "_u32(uint32_t val) { return 0; }\n", f);
+        fputs("uint32_t " PHNAME "_ab(uint32_t a, uint32_t b) { return 0; }\n", f);
+        fputs("uint32_t " PHNAME "_str(const char *key, int len)\n", f);
         break;
     case INLINE_HM:
     case HEX_HM:
     case DECIMAL_HM:
-        fputs("uint32_t phash_str(const char *key, int len) { return 0; }\n", f);
-        fputs("uint32_t phash_ab(uint32_t a, uint32_t b) { return 0; }\n", f);
-        fputs("uint32_t phash_u32(uint32_t val)\n", f);
+        fputs("uint32_t " PHNAME "_str(const char *key, int len) { return 0; }\n", f);
+        fputs("uint32_t " PHNAME "_ab(uint32_t a, uint32_t b) { return 0; }\n", f);
+        fputs("uint32_t " PHNAME "_u32(uint32_t val)\n", f);
         break;
     case AB_HM:
     case ABDEC_HM:
-        fputs("uint32_t phash_u32(uint32_t val) { return 0; }\n", f);
-        fputs("uint32_t phash_str(const char *key, int len) { return 0; }\n", f);
-        fputs("uint32_t phash_ab(uint32_t a, uint32_t b)\n", f);
+        fputs("uint32_t " PHNAME "_u32(uint32_t val) { return 0; }\n", f);
+        fputs("uint32_t " PHNAME "_str(const char *key, int len) { return 0; }\n", f);
+        fputs("uint32_t " PHNAME "_ab(uint32_t a, uint32_t b)\n", f);
         break;
     }
     fputs("{\n", f);
     for (i=0; i<final->used; ++i)
         fputs(final->line[i], f);
-    fputs("    return rsl;\n", f);
+    fputs(INDENT "return rsl;\n", f);
     fputs("}\n\n", f);
     fclose(f);
 }
@@ -1190,11 +1139,11 @@ static void driver(hashform *form)
     
     /* generate the phash.h file */
     make_h(blen, smax, nkeys, salt);
-    printf("Wrote phash.h\n");
+    printf("Wrote " PHNAME ".h\n");
     
     /* generate the phash.c file */
     make_c(tab, smax, blen, scramble, &final, form);
-    printf("Wrote phash.c\n");
+    printf("Wrote " PHNAME ".c\n");
     
     /* clean up memory sources */
     refree(textroot);
@@ -1213,7 +1162,7 @@ static void usage_error()
     printf("  N,n: normal mode, key is any string string (default).\n");
     printf("  I,i: initial hash for ASCII char strings.\n");
     printf("The initial hash must be\n");
-    printf("  hash = PHASHSALT;\n");
+    printf("  hash = PHASH_SALT;\n");
     printf("  for (i=0; i<keylength; ++i) {\n");
     printf("    hash = (hash ^ key[i]) + ((hash<<26)+(hash>>6));\n");
     printf("  }\n");
