@@ -138,7 +138,12 @@ void findhash(
     const hashform *restrict form);
 
 /* private, but in a different file because it's excessively verbose */
-bool inithex(key *keys, uint32_t alen, uint32_t blen, uint32_t nkeys, 
-             uint32_t salt, gencode *final, const hashform *form);
+bool inithex(key *restrict keys, 
+             uint32_t alen, 
+             uint32_t blen, 
+             uint32_t nkeys, 
+             uint32_t salt, 
+             gencode *restrict final, 
+             const hashform *restrict form);
 
 #endif /* PERFECT_H */
