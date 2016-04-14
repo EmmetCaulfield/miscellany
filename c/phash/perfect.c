@@ -60,8 +60,12 @@ determined a perfect hash for the whole set of keys.
 
 #define u32_nbits 32
 
-#ifndef PHNAME
-#  define PHNAME "phash"
+#ifndef PHNAME_LWR
+#  define PHNAME_LWR "phash"
+#endif
+
+#ifndef PHNAME_UPR
+#  define PHNAME_UPR "PHASH"
 #endif
 
 /*
@@ -208,7 +212,7 @@ static void initnorm(
         sprintf(final->line[0], INDENT "uint32_t i,state[CHECKSTATE],rsl;\n");
         sprintf(final->line[1], INDENT "for (i=0; i<CHECKSTATE; ++i) state[i]=0x%" PRIx32 ";\n",initlev);
         sprintf(final->line[2], INDENT "checksum(key, len, state);\n");
-        sprintf(final->line[3], INDENT "rsl = ((state[0]&0x%" PRIx32 ")^" PHNAME "_scramble[" PHNAME "_tab[state[1]&0x%" 
+        sprintf(final->line[3], INDENT "rsl = ((state[0]&0x%" PRIx32 ")^" PHNAME_LWR "_scramble[" PHNAME_LWR "_tab[state[1]&0x%" 
                 PRIx32 "]]);\n", alen-1, blen-1);
     } else {
         uint32_t loga    = mylog2(alen);     /* log based 2 of blen */
@@ -225,12 +229,12 @@ static void initnorm(
         if (smax <= 1) {
             sprintf(final->line[1], INDENT "rsl = 0;\n");
         } else if (mylog2(alen) == 0) {
-            sprintf(final->line[1], INDENT "rsl = " PHNAME "_tab[val&0x%" PRIx32 "];\n", blen-1);
+            sprintf(final->line[1], INDENT "rsl = " PHNAME_LWR "_tab[val&0x%" PRIx32 "];\n", blen-1);
         } else if (blen < USE_SCRAMBLE) {
-            sprintf(final->line[1], INDENT "rsl = ((val>>%" PRIu32 ")^" PHNAME "_tab[val&0x%" PRIx32 "]);\n",
+            sprintf(final->line[1], INDENT "rsl = ((val>>%" PRIu32 ")^" PHNAME_LWR "_tab[val&0x%" PRIx32 "]);\n",
                     u32_nbits-mylog2(alen), blen-1);
         } else {
-            sprintf(final->line[1], INDENT "rsl = ((val>>%" PRIu32 ")^" PHNAME "_scramble[" PHNAME "_tab[val&0x%" PRIx32 "]]);\n",
+            sprintf(final->line[1], INDENT "rsl = ((val>>%" PRIu32 ")^" PHNAME_LWR "_scramble[" PHNAME_LWR "_tab[val&0x%" PRIx32 "]]);\n",
                     u32_nbits-mylog2(alen), blen-1);
         }
     }
@@ -273,12 +277,12 @@ static void initinl(
     }
     else if (blen < USE_SCRAMBLE)
     {
-        sprintf(final->line[0], "  uint32_t rsl = ((val & 0x%" PRIx32 ") ^ " PHNAME "_tab[val >> %" PRIu32 "]);\n",
+        sprintf(final->line[0], "  uint32_t rsl = ((val & 0x%" PRIx32 ") ^ " PHNAME_LWR "_tab[val >> %" PRIu32 "]);\n",
                 amask, u32_nbits-blog);
     }
     else
     {
-        sprintf(final->line[0], "  uint32_t rsl = ((val & 0x%" PRIx32 ") ^ " PHNAME "_scramble[" PHNAME "_tab[val >> %" PRIu32 "]]);\n",
+        sprintf(final->line[0], "  uint32_t rsl = ((val & 0x%" PRIx32 ") ^ " PHNAME_LWR "_scramble[" PHNAME_LWR "_tab[val >> %" PRIu32 "]]);\n",
                 amask, u32_nbits-blog);
     }
 }
@@ -634,9 +638,9 @@ static void hash_ab(
     if (!used_tab) {
         sprintf(final->line[0], INDENT "uint32_t rsl = a;\n");
     } else if (*blen < USE_SCRAMBLE) {
-        sprintf(final->line[0], INDENT "uint32_t rsl = (a ^ " PHNAME "_tab[b]);\n");
+        sprintf(final->line[0], INDENT "uint32_t rsl = (a ^ " PHNAME_LWR "_tab[b]);\n");
     } else {
-        sprintf(final->line[0], INDENT "uint32_t rsl = (a ^ " PHNAME "_scramble[" PHNAME "_tab[b]]);\n");
+        sprintf(final->line[0], INDENT "uint32_t rsl = (a ^ " PHNAME_LWR "_scramble[" PHNAME_LWR "_tab[b]]);\n");
     }
     
     printf("success, found a perfect hash\n");
@@ -942,41 +946,41 @@ uint32_t  nkeys;
 uint32_t  salt;
 {
     FILE *f;
-    f = fopen(PHNAME ".h", "w");
-    fputs("#ifndef " PHNAME "_H\n", f);
-    fputs("#define " PHNAME "_H\n", f);
+    f = fopen(PHNAME_LWR ".h", "w");
+    fputs("#ifndef " PHNAME_UPR "_H\n", f);
+    fputs("#define " PHNAME_UPR "_H\n", f);
     fputs("/* Perfect hash definitions */\n\n", f);
     fputs("#include <stdint.h>\n\n",f);
     
     if (blen > 0)
     {
         if (smax <= UINT8_MAX+1 || blen >= USE_SCRAMBLE)
-            fputs("extern uint8_t " PHNAME "_tab[];\n", f);
+            fputs("extern uint8_t " PHNAME_LWR "_tab[];\n", f);
         else
         {
-            fputs("extern uint16_t " PHNAME "_tab[];\n", f);
+            fputs("extern uint16_t " PHNAME_LWR "_tab[];\n", f);
             if (blen >= USE_SCRAMBLE)
             {
                 if (smax <= UINT16_MAX+1)
-                    fputs("extern uint16_t " PHNAME "_scramble[];\n", f);
+                    fputs("extern uint16_t " PHNAME_LWR "_scramble[];\n", f);
                 else
-                    fputs("extern uint32_t " PHNAME "_scramble[];\n", f);
+                    fputs("extern uint32_t " PHNAME_LWR "_scramble[];\n", f);
             }
         }
-        fprintf(f, "#define " PHNAME "_LEN 0x%" PRIx32 "  /* length of hash mapping table */\n",
+        fprintf(f, "#define " PHNAME_UPR "_LEN 0x%" PRIx32 "  /* length of hash mapping table */\n",
                 blen);
     }
-    fprintf(f, "#define " PHNAME "_NKEYS %" PRIu32 "  /* How many keys were hashed */\n",
+    fprintf(f, "#define " PHNAME_UPR "_NKEYS %" PRIu32 "  /* How many keys were hashed */\n",
             nkeys);
-    fprintf(f, "#define " PHNAME "_RANGE %" PRIu32 "  /* Range any input might map to */\n",
+    fprintf(f, "#define " PHNAME_UPR "_RANGE %" PRIu32 "  /* Range any input might map to */\n",
             smax);
-    fprintf(f, "#define " PHNAME "_SALT 0x%.8" PRIx32 " /* internal, initialize normal hash */\n",
+    fprintf(f, "#define " PHNAME_UPR "_SALT 0x%.8" PRIx32 " /* internal, initialize normal hash */\n",
             salt*0x9e3779b9);
     
-    fputs("\nuint32_t " PHNAME "_str(const char *key, int len);\n", f);
-    fputs("\nuint32_t " PHNAME "_u32(uint32_t val);\n", f);
-    fputs("\nuint32_t " PHNAME "_ab(uint32_t a, uint32_t b);\n", f);
-    fputs("\n#endif  /* " PHNAME "_H */\n\n", f);
+    fputs("\nuint32_t " PHNAME_LWR "_str(const char *key, int len);\n", f);
+    fputs("\nuint32_t " PHNAME_LWR "_u32(uint32_t val);\n", f);
+    fputs("\nuint32_t " PHNAME_LWR "_ab(uint32_t a, uint32_t b);\n", f);
+    fputs("\n#endif  /* " PHNAME_UPR "_H */\n\n", f);
     fclose(f);
 }
 
@@ -992,9 +996,9 @@ static void make_c(
     uint32_t   i;
     FILE *f;
 
-    f = fopen(PHNAME ".c", "w");
+    f = fopen(PHNAME_LWR ".c", "w");
     fputs("/* table for the mapping for the perfect hash */\n",f);
-    fputs("#include <" PHNAME ".h>\n",f);
+    fputs("#include <" PHNAME_LWR ".h>\n",f);
     fputs("#include <lookupa.h>\n",f);
     fputs("\n",f);
     if (blen >= USE_SCRAMBLE)
@@ -1002,14 +1006,14 @@ static void make_c(
         fputs("/* A way to make the 1-byte values in tab bigger */\n",f);
         if (smax > UINT16_MAX+1)
         {
-            fputs("uint32_t " PHNAME "_scramble[] = {\n",f);
+            fputs("uint32_t " PHNAME_LWR "_scramble[] = {\n",f);
             for (i=0; i<=UINT8_MAX; i+=4)
                 fprintf(f, INDENT "0x%.8" PRIx32 ", 0x%.8" PRIx32 ", 0x%.8" PRIx32 ", 0x%.8" PRIx32 ",\n",
                         scramble[i+0], scramble[i+1], scramble[i+2], scramble[i+3]);
         }
         else
         {
-            fputs("uint16_t " PHNAME "_scramble[] = {\n",f);
+            fputs("uint16_t " PHNAME_LWR "_scramble[] = {\n",f);
             for (i=0; i<=UINT8_MAX; i+=8)
                 fprintf(f, 
                         "0x%.4" PRIx32 ", 0x%.4" PRIx32 ", 0x%.4" PRIx32 ", 0x%.4" PRIx32 ", 0x%.4" PRIx32 ", 0x%.4" PRIx32 ", 0x%.4" PRIx32 ", 0x%.4" PRIx32 ",\n",
@@ -1023,9 +1027,9 @@ static void make_c(
         fputs("/* small adjustments to _a_ to make values distinct */\n", f);
         
         if (smax <= UINT8_MAX+1 || blen >= USE_SCRAMBLE)
-            fputs("uint8_t " PHNAME "_tab[] = {\n", f);
+            fputs("uint8_t " PHNAME_LWR "_tab[] = {\n", f);
         else
-            fputs("uint16_t " PHNAME "_tab[] = {\n", f);
+            fputs("uint16_t " PHNAME_LWR "_tab[] = {\n", f);
         
         if (blen < 16) {
             fputs(INDENT, f);
@@ -1071,22 +1075,22 @@ static void make_c(
     switch(form->mode)
     {
     case NORMAL_HM:
-        fputs("uint32_t " PHNAME "_u32(uint32_t val) { return 0; }\n", f);
-        fputs("uint32_t " PHNAME "_ab(uint32_t a, uint32_t b) { return 0; }\n", f);
-        fputs("uint32_t " PHNAME "_str(const char *key, int len)\n", f);
+        fputs("uint32_t " PHNAME_LWR "_u32(uint32_t val) { return 0; }\n", f);
+        fputs("uint32_t " PHNAME_LWR "_ab(uint32_t a, uint32_t b) { return 0; }\n", f);
+        fputs("uint32_t " PHNAME_LWR "_str(const char *key, int len)\n", f);
         break;
     case INLINE_HM:
     case HEX_HM:
     case DECIMAL_HM:
-        fputs("uint32_t " PHNAME "_str(const char *key, int len) { return 0; }\n", f);
-        fputs("uint32_t " PHNAME "_ab(uint32_t a, uint32_t b) { return 0; }\n", f);
-        fputs("uint32_t " PHNAME "_u32(uint32_t val)\n", f);
+        fputs("uint32_t " PHNAME_LWR "_str(const char *key, int len) { return 0; }\n", f);
+        fputs("uint32_t " PHNAME_LWR "_ab(uint32_t a, uint32_t b) { return 0; }\n", f);
+        fputs("uint32_t " PHNAME_LWR "_u32(uint32_t val)\n", f);
         break;
     case AB_HM:
     case ABDEC_HM:
-        fputs("uint32_t " PHNAME "_u32(uint32_t val) { return 0; }\n", f);
-        fputs("uint32_t " PHNAME "_str(const char *key, int len) { return 0; }\n", f);
-        fputs("uint32_t " PHNAME "_ab(uint32_t a, uint32_t b)\n", f);
+        fputs("uint32_t " PHNAME_LWR "_u32(uint32_t val) { return 0; }\n", f);
+        fputs("uint32_t " PHNAME_LWR "_str(const char *key, int len) { return 0; }\n", f);
+        fputs("uint32_t " PHNAME_LWR "_ab(uint32_t a, uint32_t b)\n", f);
         break;
     }
     fputs("{\n", f);
@@ -1139,11 +1143,11 @@ static void driver(hashform *form)
     
     /* generate the phash.h file */
     make_h(blen, smax, nkeys, salt);
-    printf("Wrote " PHNAME ".h\n");
+    printf("Wrote " PHNAME_LWR ".h\n");
     
     /* generate the phash.c file */
     make_c(tab, smax, blen, scramble, &final, form);
-    printf("Wrote " PHNAME ".c\n");
+    printf("Wrote " PHNAME_LWR ".c\n");
     
     /* clean up memory sources */
     refree(textroot);
@@ -1154,36 +1158,48 @@ static void driver(hashform *form)
 
 
 /* Describe how to use this utility */
-static void usage_error()
+static void usage()
 {
-    printf("Usage: perfect [-{NnIiHhDdAaBb}{MmPp}{FfSs}] < key.txt \n");
-    printf("The input is a list of keys, one key per line.\n");
-    printf("Only one of NnIiHhDdAa and one of MmPp may be specified.\n");
-    printf("  N,n: normal mode, key is any string string (default).\n");
-    printf("  I,i: initial hash for ASCII char strings.\n");
-    printf("The initial hash must be\n");
-    printf("  hash = PHASH_SALT;\n");
-    printf("  for (i=0; i<keylength; ++i) {\n");
-    printf("    hash = (hash ^ key[i]) + ((hash<<26)+(hash>>6));\n");
-    printf("  }\n");
-    printf("Note that this can be inlined in any user loop that walks\n");
-    printf("through the key anyways, eliminating the loop overhead.\n");
-    printf("  H,h: Keys are 4-byte integers in hex in this format:\n");
-    printf("ffffffff\n");
-    printf("This is good for optimizing switch statement compilation.\n");
-    printf("  D,d: Same as H,h, except in decimal not hexidecimal\n");
-    printf("  A,a: An (A,B) pair is supplied in hex in this format:\n");
-    printf("aaa bbb\n");
-    printf("  B,b: Same as A,a, except in decimal not hexidecimal\n");
-    printf("This mode does nothing but find the values of tab[].\n");
-    printf("*A* must be less than the total number of keys.\n");
-    printf("  M,m: Minimal perfect hash.  Hash will be in 0..nkeys-1 (default)\n");
-    printf("  P,p: Perfect hash.  Hash will be in 0..n-1, where n >= nkeys\n");
-    printf("and n is a power of 2.  Will probably use a smaller tab[].");
-    printf("  F,f: Fast mode.  Generate the perfect hash fast.\n");
-    printf("  S,s: Slow mode.  Spend time finding a good perfect hash.\n");
+    puts("Usage: perfect [-{NnIiHhDdAaBb}{MmPp}{FfSs}] < key.txt\n"
+         "\n"
+         "The input is a list of keys, one key per line.\n"
+         "\n"
+         "Only one of NnIiHhDdAa and one of MmPp may be specified.\n"
+         "\n"
+         "N,n: normal mode, key is any string string (default).\n"
+         "\n"
+         "I,i: initial hash for ASCII char strings.\n"
+         "\n"
+         "  The initial hash must be\n"
+         "      hash = " PHNAME_UPR "_SALT;\n"
+         "      for (i=0; i<keylength; ++i) {\n"
+         "          hash = (hash ^ key[i]) + ((hash<<26)+(hash>>6));\n"
+         "      }\n"
+         "\n"
+         "  Note that this can be inlined in any user loop that walks\n"
+         "  through the key anyways, eliminating the loop overhead.\n"
+         "\n"
+         "H,h: Keys are 4-byte integers in hex of the form ffffffff\n"
+         "  This is good for optimizing switch statement compilation.\n"
+         "\n"
+         "D,d: Same as H,h, except in decimal not hexadecimal\n"
+         "\n"
+         "A,a: An (A,B) pair supplied in hex in the form: aaa bbb\n"
+         "  *A* must be less than the total number of keys.\n"
+         "\n"
+         "B,b: Same as A,a, except in decimal not hexadecimal\n"
+         "  This mode does nothing but find the values of tab[].\n"
+         "\n"
+         "M,m: Minimal perfect hash.  Hash will be in 0..nkeys-1 (default)\n"
+         "\n"
+         "P,p: Perfect hash.  Hash will be in 0..n-1, where n >= nkeys\n"
+         "  and n is a power of 2.  Will probably use a smaller tab[].\n"
+         "\n"
+         "F,f: Fast mode.  Generate the perfect hash fast.\n"
+         "\n"
+         "S,s: Slow mode.  Spend time finding a good perfect hash.\n");
     
-    exit(EXIT_SUCCESS);
+    exit(EXIT_FAILURE);
 }
 
 
@@ -1207,11 +1223,11 @@ int main(int argc, char *argv[])
     switch (argc)
     {
     case 1:
-        break;
+        usage();
     case 2:
         if (argv[1][0] != '-')
         {
-            usage_error();
+            usage();
             break;
         }
         for (c = &argv[1][1]; *c != '\0'; ++c) {
@@ -1223,7 +1239,7 @@ int main(int argc, char *argv[])
             case 'a': case 'A':
             case 'b': case 'B':
                 if (mode_given) 
-                    usage_error();
+                    usage();
                 switch(*c)
                 {
                 case 'n': case 'N':
@@ -1244,7 +1260,7 @@ int main(int argc, char *argv[])
             case 'm': case 'M':
             case 'p': case 'P':
                 if (minimal_given)
-                    usage_error();
+                    usage();
                 switch(*c)
                 {
                 case 'p': case 'P':
@@ -1257,7 +1273,7 @@ int main(int argc, char *argv[])
             case 'f': case 'F':
             case 's': case 'S':
                 if (speed_given)
-                    usage_error();
+                    usage();
                 switch(*c)
                 {
                 case 'f': case 'F':
@@ -1268,11 +1284,11 @@ int main(int argc, char *argv[])
                 speed_given = true;
                 break;
             default:
-                usage_error();
+                usage();
             }
             break;
         default:
-            usage_error();
+            usage();
         }
     }
     /* Generate the [minimal] perfect hash */
