@@ -257,7 +257,9 @@ const ip_cbst_node* ip_cbst_load_text(const char *filename, size_t* nmemb)
 //        printf("line_nr: %zu", line_nr);
         dq_lo = line;
         dq_hi = next_word(line);
+        *(dq_hi-1)='\0';
         cc    = next_word(dq_hi); 
+        *(cc-1)='\0';
         index = ip_cbst_add_dq(cbst, n_lines, line_nr, dq_lo, dq_hi, cc);
         line_nr++;
 //        printf(", index: %zu\n", index);
