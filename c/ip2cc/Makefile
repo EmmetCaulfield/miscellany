@@ -1,5 +1,6 @@
 CC=gcc
 CFLAGS=-I. -std=c99 -pedantic -Wall -Wextra -g
+LDFLAGS=-g
 LDLIBS=-lm
 BINS=ip2cc
 
