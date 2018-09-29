@@ -4,10 +4,6 @@ miscellany
 A semi-organized collection of miscellaneous software, both trivial
 and interesting.
 
-[Bitbucket](https://bitbucket.org/)'s link handling is broken. You
-probably want to start
-[here](https://bitbucket.org/emmetac/miscellany/src/master/).
-
 
 Overview
 --------
