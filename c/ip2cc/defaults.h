@@ -1,7 +1,8 @@
 #pragma once
 
 // The default directory for database files:
-#define IP2CC_DB_ROOT "/var/cache/ip2cc"
+// #define IP2CC_DB_ROOT "/var/cache/ip2cc"
+#define IP2CC_DB_ROOT "."
 
 // Names of the environment variables that store the database file
 // paths:
