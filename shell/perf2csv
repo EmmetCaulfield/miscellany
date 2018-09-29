@@ -81,6 +81,21 @@ join () {
     echo "$*"
 }
 
+convert () {
+    awk -v OFS=, '
+$1!="#" && NF>='$naf' {
+    sub(/\//, OFS, $2);
+    sub(/:/, "", $3);
+    sub(/:/, "", $4);
+    for(i='$naf'+1; i<=NF; i++) {
+        $'$naf' = $'$naf' " " $i; 
+    }
+    q="\"";
+    print q $1 q, $2, $3, q $4 q, "0x" $5, q $6 q, q $7 q
+}' $temp_out >> $OutFile
+}
+
+
 # These are all the columns in the perf-script manpage:
 OkFields=(comm tid pid time cpu event trace ip sym dso addr symoff)
 
@@ -125,16 +140,7 @@ naf=$((${#OkFields[*]}-1))
 join ${OkFields[*]} | sed 's/^/"/; s/,/","/g; s/$/"/'> $OutFile
 
 # Filter the perf output through awk to turn it into CSV:
-awk -v OFS=, '$1!="#" && NF>='$naf' {
-    sub(/\//, OFS, $2);
-    sub(/:/, "", $3);
-    sub(/:/, "", $4);
-    for(i='$naf'+1; i<=NF; i++) {
-        $'$naf' = $'$naf' " " $i; 
-    }
-    q="\"";
-    print q $1 q, $2, $3, q $4 q, "0x" $5, q $6 q, q $7 q
-}' $temp_out >> $OutFile
+mv $temp_out $OutFile
 
 nr=$(( $(wc -l < $OutFile)-1 ))
 echo "Wrote $nr records to '$OutFile'"
