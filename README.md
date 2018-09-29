@@ -44,6 +44,7 @@ Languages include:
   * A nice little [sed script](sed/) to extract multi-line tag content.
   * An [IP to ccTLD converter](c/ip2cc/) that builds a [complete binary search tree](https://en.wikipedia.org/wiki/Binary_tree#Types_of_binary_trees) with no comparisons.
   * A [minimal perfect hashing function generator](c/phash/)
+  * A [pseudo-random memory bandwidth measurement](c/prmembm) utility that uses the [M-sequence generator](c/mseq/) to measure temporal and energy bandwidth of random accesses to a power-of-two sized memory block.
 
 #### Software Analysis ####
 
@@ -75,3 +76,8 @@ Languages include:
     _MATLAB_ that is more a transliteration and explanation of
     Nvidia's spreadsheet than a program that merely “does what it says
     on the tin”.
+  * [occuPlots](matlab/cudaUtils/) — a demonstration of `occuCalc.m`
+    that generates (more or less) the same plots as found in Nvidia's
+    *CUDA Occupancy Calculator* spreadsheet for one set of (fairly
+    arbitrary input) values. **Not verified to work with Matlab; works
+    with Octave**.
