@@ -3,6 +3,9 @@ DISTFILES=$(NAME).py README.txt BtMainWindow.py
 
 default: BtMainWindow.py
 
+run: BladeTwist.py BtMainWindow.py
+	PYTHONPATH=../lib python $<
+
 zip: $(NAME).zip
 
 $(NAME).zip: $(DISTFILES)
