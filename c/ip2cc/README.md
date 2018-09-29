@@ -89,6 +89,17 @@ it will segfault. Do a `make ludost` (or `make maxmind`) to get a
 database. Read the `Makefile` for URLs, etc.
 
 
+Input and Output
+----------------
+
+The executable, `ip2cc`, takes any number of IPv4 addresses in dotted
+quad form as command-line arguments.
+
+For each input IP address, there is one line of output: the two-letter
+country-code (e.g. "us", "cn", "uk", ...), followed by the input IP
+address, followed by the range that the IP address was found in,
+followed by a breakdown of the range in CIDR form.
+
 Files
 -----
 
