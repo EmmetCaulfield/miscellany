@@ -1,0 +1,53 @@
+    <h2>Instructions</h2>
+    <p>
+      This file contains a single table of <i>Zoom</i> meetings. You
+      can edit it with any text editor and add more rows to the
+      table. It's simple enough that almost anyone with a rudimentary
+      knowlege of HTML/JavaScript/CSS should be able to understand it
+      and modify it as needed.
+    </p>
+
+    <p>
+      When the page is loaded, a simple JavaScript function adds an
+      extra cell to the end of every table row with a linked camera
+      icon that, when you click on it, should launch <i>Zoom</i> and
+      connect you to the meeting.
+    <p>
+
+    <p>
+      I say "should" because there's a chance that it won't work if
+      the URL protocol handlers in your browser/OS aren't set up to
+      forward <tt>zoommtg://...</tt> URLs to the <i>Zoom</i>
+      application or your browser is configured to disallow JavaScript
+      for <tt>file://</tt> URLs.
+    </p>
+      
+    <p>
+      If the Zoom meeting ID is 10 characters long (usually indicative
+      of a personal meeting room), the script sets the <tt>class</tt>
+      attribute on the table row element to <tt>pmr</tt>, which is
+      currently styled as a pale yellow background (CSS <tt>tr.pmr</tt>).
+    <p>
+      
+    <p>
+      There's a further style class (<tt>tr.host</tt>) that you can
+      set manually for meetings that you host, currently styled as a
+      pale pink background.
+    </p>
+
+    <p>
+      You can also add or delete <em>columns</em> from the table. The
+      script will always use the last two cells in each row.
+    </p>
+
+    <p>
+      I got tired of entering strings of numbers for recurring
+      meetings, which I did for 2 months, so I spent an hour writing
+      this. If it breaks, you get to keep all the pieces. It makes my
+      life a little easier, but YMMV.
+    </p>
+    
+    <p>
+      You can edit the file to delete, or comment out, these
+      instructions.
+    </p>
