@@ -14,7 +14,6 @@ Languages include:
 
   * [*AWK*](awk/), the classic _Unix_ utility, by [**A**ho](https://en.wikipedia.org/wiki/Alfred_Aho), [**W**einberger](https://en.wikipedia.org/wiki/Peter_J._Weinberger), and [**K**ernighan](https://en.wikipedia.org/wiki/Brian_Kernighan)
   * [*C*](c/)
-  * [*flex*](flex/), the [lexical analyzer generator](http://flex.sourceforge.net/), not the [_Adobe_ thing](http://www.adobe.com/products/flex.html).
   * [*Java*](java/)
   * [*GNU Make*](make/)
   * [*MATLAB*](matlab/) and/or [GNU Octave](http://www.gnu.org/software/octave/)
@@ -36,7 +35,7 @@ Languages include:
 
 #### Software Examples ####
 
-  * [The Bison C++ Example with a C++ Flex Lexer](flex/bison-cxx-example/).
+  * [The Bison C++ Example with a C++ Flex Lexer](https://github.com/EmmetCaulfield/bison-cxx-example) (moved to its own repo).
   * A nice little [sed script](sed/) to extract multi-line tag content.
   * An [IP to ccTLD converter](c/ip2cc/) that builds a [complete binary search tree](https://en.wikipedia.org/wiki/Binary_tree#Types_of_binary_trees) with no comparisons.
   * A [minimal perfect hashing function generator](c/phash/)
