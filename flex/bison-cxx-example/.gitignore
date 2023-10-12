@@ -1,9 +1,0 @@
-calc++
-*.o
-calc++-parser.cc
-calc++-parser.hh
-calc++-parser.output
-calc++-scanner.cc
-location.hh
-position.hh
-stack.hh
