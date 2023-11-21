@@ -17,6 +17,9 @@ phash.o: phash.c phash.h
 phash.h phash.c: perfect keys.txt
 	./perfect -nms < keys.txt
 
+test: phtest
+	cat keys.txt | while read key; do ./$< $$key; done
+
 .PHONY: clean
 clean:
 	rm -f perfect *.o *~
