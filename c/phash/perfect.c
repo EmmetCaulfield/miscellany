@@ -937,7 +937,7 @@ static void getkeys(
         } else if (form->mode == DECIMAL_HM) {
             sscanf(mytext, "%" PRIu32 " ", &mykey->hash_k);
         } else {
-            mykey->name_k = (uint8_t *)mytext;
+            mykey->name_k = mytext;
             mytext = (char *)renew(textroot);
             mykey->len_k  = (uint32_t)(strlen((char *)mykey->name_k)-1);
         }
@@ -1085,21 +1085,21 @@ static void make_c(
     switch(form->mode)
     {
     case NORMAL_HM:
-        fputs("uint32_t " PHNAME_LWR "_u32(uint32_t val) { return 0; }\n", f);
-        fputs("uint32_t " PHNAME_LWR "_ab(uint32_t a, uint32_t b) { return 0; }\n", f);
+        fputs("uint32_t " PHNAME_LWR "_u32(uint32_t val) { (void)val; return 0; }\n", f);
+        fputs("uint32_t " PHNAME_LWR "_ab(uint32_t a, uint32_t b) { (void)a; (void)b; return 0; }\n", f);
         fputs("uint32_t " PHNAME_LWR "_str(const char *key, int len)\n", f);
         break;
     case INLINE_HM:
     case HEX_HM:
     case DECIMAL_HM:
-        fputs("uint32_t " PHNAME_LWR "_str(const char *key, int len) { return 0; }\n", f);
-        fputs("uint32_t " PHNAME_LWR "_ab(uint32_t a, uint32_t b) { return 0; }\n", f);
+        fputs("uint32_t " PHNAME_LWR "_str(const char *key, int len) { (void)key; (void)len; return 0; }\n", f);
+        fputs("uint32_t " PHNAME_LWR "_ab(uint32_t a, uint32_t b) { (void)a; (void)b; return 0; }\n", f);
         fputs("uint32_t " PHNAME_LWR "_u32(uint32_t val)\n", f);
         break;
     case AB_HM:
     case ABDEC_HM:
-        fputs("uint32_t " PHNAME_LWR "_u32(uint32_t val) { return 0; }\n", f);
-        fputs("uint32_t " PHNAME_LWR "_str(const char *key, int len) { return 0; }\n", f);
+        fputs("uint32_t " PHNAME_LWR "_u32(uint32_t val) { (void)val; return 0; }\n", f);
+        fputs("uint32_t " PHNAME_LWR "_str(const char *key, int len) { (void)key; (void)len; return 0; }\n", f);
         fputs("uint32_t " PHNAME_LWR "_ab(uint32_t a, uint32_t b)\n", f);
         break;
     }

@@ -74,7 +74,7 @@ acceptable.  Do NOT use for cryptographic purposes.
 --------------------------------------------------------------------
 */
 
-uint32_t lookup(const uint8_t *k, uint32_t length, uint32_t level)
+uint32_t lookup(const char *k, uint32_t length, uint32_t level)
 {
     register uint32_t a,b,c,len;
     
@@ -158,7 +158,7 @@ Use to detect changes between revisions of documents, assuming nobody
 is trying to cause collisions.  Do NOT use for cryptography.
 --------------------------------------------------------------------
 */
-void  checksum(const uint8_t *k, uint32_t len, uint32_t *state)
+void  checksum(const char *k, uint32_t len, uint32_t *state)
 {
    register uint32_t a,b,c,d,e,f,g,h,length;
 

@@ -83,7 +83,7 @@ typedef struct hashform
 typedef struct key key;
 struct key
 {
-    uint8_t    *name_k;   /* the actual key */
+    char       *name_k;   /* the actual key */
     uint32_t    len_k;    /* the length of the actual key */
     uint32_t    hash_k;   /* the initial hash value for this key */
     key        *next_k;   /* next key */
