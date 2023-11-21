@@ -1,5 +1,5 @@
 CC:=gcc
-CFLAGS:=-std=c99 -O2 -Wall -Wextra
+CFLAGS:=-O2 -std=c99 -Wall -Wextra -pedantic
 CPPFLAGS:=-I.
 
 OBJS = perfect.o perfhex.o lookupa.o recycle.o

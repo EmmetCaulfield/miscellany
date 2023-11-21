@@ -719,15 +719,24 @@ static void initalen(
   }
   else
   {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"      
       switch(mylog2(*smax))
       {
       case 0:
           *alen = 1;
           *blen = 1;
-      case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8:
+      case 1:
+      case 2:
+      case 3:
+      case 4:
+      case 5:
+      case 6:
+      case 7:
+      case 8:
           *alen = (form->perfect == NORMAL_HP) ? *smax : *smax/2;
-              *blen = *smax/2;
-              break;
+          *blen = *smax/2;
+          break;
       case 9:
       case 10:
       case 11:
@@ -776,6 +785,7 @@ static void initalen(
           *blen = *smax/2;     /* we'll be thrashing virtual memory at this size */
           break;
       }
+#pragma GCC diagnostic pop
   }
 }
 
@@ -1224,6 +1234,7 @@ int main(int argc, char *argv[])
     {
     case 1:
         usage();
+        break; // ... just to suppress implicit fallthrough warning.
     case 2:
         if (argv[1][0] != '-')
         {

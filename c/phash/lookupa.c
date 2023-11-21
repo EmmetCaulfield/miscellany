@@ -95,6 +95,8 @@ uint32_t lookup(const uint8_t *k, uint32_t length, uint32_t level)
 
    /*------------------------------------- handle the last 11 bytes */
    c += length;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
    switch(len)              /* all the case statements fall through */
    {
    case 11: c+=((uint32_t)k[10]<<24);
@@ -111,6 +113,7 @@ uint32_t lookup(const uint8_t *k, uint32_t length, uint32_t level)
    case 1 : a+=k[0];
      /* case 0: nothing left to add */
    }
+#pragma GCC diagnostic pop
    mix(a,b,c);
    /*-------------------------------------------- report the result */
    return c;
@@ -184,6 +187,8 @@ void  checksum(const uint8_t *k, uint32_t len, uint32_t *state)
 
    /*------------------------------------- handle the last 31 bytes */
    h += length;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
    switch(len)
    {
    case 31: h+=(k[30]<<24);
@@ -218,6 +223,7 @@ void  checksum(const uint8_t *k, uint32_t len, uint32_t *state)
    case 2 : a+=(k[1]<<8);
    case 1 : a+=k[0];
    }
+#pragma GCC diagnostic pop
    mixc(a,b,c,d,e,f,g,h);
    mixc(a,b,c,d,e,f,g,h);
    mixc(a,b,c,d,e,f,g,h);
